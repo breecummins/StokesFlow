@@ -1,3 +1,4 @@
 Academic code for fluid-structure interactions in Stokes flows.
 This project is an implementation of the method of regularized Stokeslets (Cortez 2001), the method of regularized Brinkmanlets (Cortez, Cummins, Leiderman, and Varela 2010), and the method of regularized Stokes-Oldroyd-B flow (Cortez, Cummins, Fauci, and Shelley; in progress).
 It is written in Python 2.7 with the numpy and scipy scientific computing packages and the numpy C API for C extensions. 
+This code is released as open source under the GPL. Contact the developer Bree Cummins (breecummins at gmail dot com) with questions, comments, and bug reports.
