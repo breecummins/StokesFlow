@@ -17,7 +17,6 @@
 
 import numpy as np
 import scipy.special as ss
-import matplotlib.pyplot as plt
 
 def circularCylinder2D(x,y,a,mu=1.0):
     '''

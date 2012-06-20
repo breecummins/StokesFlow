@@ -22,7 +22,7 @@ import os, re
 import lib_SpatialDerivs2D as SD2D
 import lib_Gridding as mygrids
 import viz_testextensionflow as vizTEF
-from utilities import loadPickle
+from utilities import fileops
 try:
     import pythoncode.cext.CubicStokeslet2D as CM
 except:
@@ -95,7 +95,7 @@ def knownsolutioninitialygrad(U, Wi, l, times):
 
 def simresults(basename, basedir):
     '''Retrieve approximate solution from saved output'''
-    mydict = loadPickle(basename, basedir)
+    mydict = fileops.loadPickle(basename, basedir)
     l = mydict['l']
     S=mydict['S']
     F=[]

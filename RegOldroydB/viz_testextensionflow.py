@@ -22,7 +22,6 @@ import numpy as np
 import os, re
 #import home-rolled python modules 
 import batchscripts_testextensionflow as tef
-from utilities import loadPickle
 
 mpl.rcParams.update({'font.size': 20})
 mpl.rcParams.update({'axes.formatter.limits': (-4,4)})

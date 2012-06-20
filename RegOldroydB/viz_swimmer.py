@@ -21,14 +21,14 @@ import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
 import lib_SpatialDerivs2D as SD2D
 import numpy as np
-from utilities import loadPickle
+from utilities import fileops
 import os, sys
 
 mpl.rcParams.update({'font.size': 20})
 
 def swimmerOnly(basename,basedir):
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = swimmerVars(mydict)
     fpts = mydict['fpts']
     fig=plt.figure()
@@ -44,8 +44,8 @@ def swimmerOnly(basename,basedir):
    
 def swimmerOnlyComp(vebasename,vebasedir,stbasename,stbasedir,swimdir):
     plt.close()
-    mydictve = loadPickle(vebasename,vebasedir)
-    mydictst = loadPickle(stbasename,stbasedir)
+    mydictve = fileops.loadPickle(vebasename,vebasedir)
+    mydictst = fileops.loadPickle(stbasename,stbasedir)
     fname = os.path.expanduser(vebasedir +vebasename +'/comp2stokesframe')
     myvars = swimmerVars(mydictve)
     vefpts = mydictve['fpts']
@@ -199,7 +199,7 @@ def stressTrace(basename,basedir,swimdir):
     FIXME: Rewrite so that swimmer can be plotted over any of the other plots. Maybe pass function handle.
     '''
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname = os.path.expanduser(basedir +basename +'/traceframe')
     myvars = stressVars(mydict)
     myswimvars = swimmerVars(mydict)
@@ -225,7 +225,7 @@ def stressTrace(basename,basedir,swimdir):
         
 def stressTraceContour(basename,basedir):
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = stressVars(mydict)
     fname = os.path.expanduser(basedir+basename+'/tracecontourframe')
     for k in range(1,len(mydict['t'])):
@@ -245,7 +245,7 @@ def stressTraceContour(basename,basedir):
 
 def stressTraceExtension(basename,basedir):
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname = os.path.expanduser(basedir+basename +'/traceframe')
     myvars = stressVars(mydict)
     for k in range(0,len(mydict['t'])):
@@ -263,7 +263,7 @@ def stressComponentsPColor(basename,basedir,i,j):
     S[i,j] = indices of stress component, S_{i+1,j+1} in matrix indices
     '''
     plt.clf()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname=os.path.expanduser(basedir + basename + '/S%d%d_' % (i+1,j+1))
     myvars = stressVars(mydict)
     for k in range(0,len(mydict['t'])/2):
@@ -280,7 +280,7 @@ def stressComponentsPColor(basename,basedir,i,j):
         
 def stressComponentsMaxMin(basename,basedir):
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname = os.path.expanduser(basedir + basename + '/4RMCompsOverTime')
     S11 = np.zeros((len(mydict['t']),2))
     S12 = np.zeros((len(mydict['t']),2))
@@ -309,7 +309,7 @@ def stressComponentsMaxMin(basename,basedir):
       
 def stressTrace4RMContour(basename,basedir):
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname=os.path.expanduser(basedir + basename + '/tracecontourframe')
 #    vmax=np.max(mydict['Strace'])
 #    x = mydict['l'][:,:,:,0]
@@ -359,7 +359,7 @@ def pointTraj(basename,basedir):
     Don't use with regridded data sets.    
     '''
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = stressVars(mydict)
     l = mydict['l']
     ksave = [0]
@@ -397,7 +397,7 @@ def specificPointTraj(basename,basedir):
     Don't use with regridded data sets.    
     '''
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = stressVars(mydict)
     l = mydict['l']
 #    pts = [(0,0),(5,0),(0,5),(-5,0),(0,-5),(5,10),(10,5),(-5,10),(10,-5),
@@ -422,7 +422,7 @@ def plotQuiverDiff(basename,basedir,velfunc):
     Don't use with regridded data sets.    
     '''
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fname = os.path.expanduser(basedir+basename +'/quivframe')
     myvars = stressVars(mydict)
     for k in range(1,len(mydict['t'])-1):
@@ -446,7 +446,7 @@ def plotFinalPosition(basedir,bnamelist,xvals,xlab,fnameend):
     for k in range(len(bnamelist)):
         print(xvals[k])
         basename = bnamelist[k]
-        mydict = loadPickle(basename,basedir)
+        mydict = fileops.loadPickle(basename,basedir)
         xf.append(np.abs(np.max(mydict['fpts'][0][:-1:2])-np.max(mydict['fpts'][-1][:-1:2])))
     plt.close()
     plt.plot(xvals,[x/xf[0] for x in xf],linewidth=2)
@@ -461,7 +461,7 @@ def plotFinalPositionUnnormalized(basedir,bnamelist,xvals,xlab,fnameend):
     for k in range(len(bnamelist)):
         print(xvals[k])
         basename = bnamelist[k]
-        mydict = loadPickle(basename,basedir)
+        mydict = fileops.loadPickle(basename,basedir)
         xf.append(np.abs(np.max(mydict['fpts'][0][:-1:2])-np.max(mydict['fpts'][-1][:-1:2])))
     plt.close()
     plt.plot(xvals,xf,linewidth=2)
@@ -473,7 +473,7 @@ def plotFinalPositionUnnormalized(basedir,bnamelist,xvals,xlab,fnameend):
 
 def checkSwimmerLength(basename,basedir):   
     plt.close()
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     fpts = mydict['fpts']
     plt.figure()
     L = mydict['pdict']['forcedict']['L']
@@ -507,7 +507,7 @@ def checkSwimmerLength(basename,basedir):
 def makeEllipses(basedir,basename):
     plt.close()
     fname = os.path.expanduser(basedir +basename +'/ellipseframe')
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = stressVars(mydict)
     fpts = mydict['fpts']
     gridspc = mydict['pdict']['gridspc']
@@ -550,7 +550,7 @@ def makeEllipses(basedir,basename):
 def makeEllipses_Deviation(basedir,basename):
     plt.close()
     fname = os.path.expanduser(basedir +basename +'/devellipseframe')
-    mydict = loadPickle(basename,basedir)
+    mydict = fileops.loadPickle(basename,basedir)
     myvars = stressVars(mydict)
     fpts = mydict['fpts']
     gridspc = mydict['pdict']['gridspc']

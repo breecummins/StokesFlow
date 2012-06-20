@@ -278,9 +278,6 @@ def myExtension_initrest():
     # solver options for viscoelastic flow
     stressflag=1
     regridding=0
-    rtol=1.e-3
-    fnamestart = 'ext_initrest_PtinC_noregrid_rtol%02d' % int(np.abs(np.log10(rtol)))
-
     ####################################
     #choose a directory for saving files
     ####################################
@@ -293,34 +290,37 @@ def myExtension_initrest():
                 print('Choose a different directory for saving files')
                 raise(SystemExit)
 
-    Nlist = [20]#,40,80]
-    for N in Nlist:
-        gridspc = xextent/N
-        M = int(np.ceil(yextent/gridspc))
-        ####################################
-        #Put parameters into dictionaries...
-        ####################################
-        pdict = dict( N = N, M = M, U=U, gridspc = gridspc, origin = origin, mu = mu, Wi = Wi, beta=beta, eps_grid=eps_grid, veldocstring=veldocstring)
-        wdict = dict(pdict=pdict,myVelocity=myVelocity)
-        pdict = None #to avoid heisenbugs during refactor
-
-        #make the grid
-        l0 = mygrids.makeGridCenter(N,M,gridspc,origin)
-        P0 = np.zeros((N,M,2,2))
-        P0[:,:,0,0] = 1.0
-        P0[:,:,1,1] = 1.0
-        print(P0.shape)
-        y0 = np.append(l0.flatten(),P0.flatten())    
-        #Viscoelastic run
-        print('Extensional flow, initially at rest, N = %02d' % N)
-        StateSave = eVE.mySolver(eVE.viscoElasticUpdater_bgvel,y0,t0,dt,totalTime,wdict,stressflag,regridding,rtol=rtol)        
-        #save the output
-        StateSave['pdict']=wdict['pdict']
-        StateSave['dt']=dt
-        fname = basedir + fnamestart
-        F = open( fname+'_eps%03d_N%03d_Wi%02d_Time%02d.pickle' % (int(round(eps_grid*1000)),N,int(round(Wi)),int(round(totalTime))), 'w' )
-        Pickler(F).dump(StateSave)
-        F.close()
+    for rtol in [1.e-3,1.e-4,1.e-5,1.e-6]:
+        fnamestart = 'ext_initrest_PtinC_noregrid_rtol%02d' % int(np.abs(np.log10(rtol)))
+    
+        Nlist = [20]#,40,80]
+        for N in Nlist:
+            gridspc = xextent/N
+            M = int(np.ceil(yextent/gridspc))
+            ####################################
+            #Put parameters into dictionaries...
+            ####################################
+            pdict = dict( N = N, M = M, U=U, gridspc = gridspc, origin = origin, mu = mu, Wi = Wi, beta=beta, eps_grid=eps_grid, veldocstring=veldocstring)
+            wdict = dict(pdict=pdict,myVelocity=myVelocity)
+            pdict = None #to avoid heisenbugs during refactor
+    
+            #make the grid
+            l0 = mygrids.makeGridCenter(N,M,gridspc,origin)
+            P0 = np.zeros((N,M,2,2))
+            P0[:,:,0,0] = 1.0
+            P0[:,:,1,1] = 1.0
+            print(P0.shape)
+            y0 = np.append(l0.flatten(),P0.flatten())    
+            #Viscoelastic run
+            print('Extensional flow, initially at rest, N = %02d' % N)
+            StateSave = eVE.mySolver(eVE.viscoElasticUpdater_bgvel,y0,t0,dt,totalTime,wdict,stressflag,regridding,rtol=rtol)        
+            #save the output
+            StateSave['pdict']=wdict['pdict']
+            StateSave['dt']=dt
+            fname = basedir + fnamestart
+            F = open( fname+'_eps%03d_N%03d_Wi%02d_Time%02d.pickle' % (int(round(eps_grid*1000)),N,int(round(Wi)),int(round(totalTime))), 'w' )
+            Pickler(F).dump(StateSave)
+            F.close()
         
 def myExtension_initygrad():
     ####################################
@@ -345,9 +345,6 @@ def myExtension_initygrad():
     # solver options for viscoelastic flow
     stressflag=1
     regridding=0
-    rtol=1.e-3
-    fnamestart = 'ext_initygrad_PtinC_noregrid_rtol%02d' % int(np.abs(np.log10(rtol)))
-
     ####################################
     #choose a directory for saving files
     ####################################
@@ -360,34 +357,37 @@ def myExtension_initygrad():
                 print('Choose a different directory for saving files')
                 raise(SystemExit)
 
-    Nlist = [20]#,40,80]
-    for N in Nlist:
-        gridspc = xextent/N
-        M = int(np.ceil(yextent/gridspc))
-        ####################################
-        #Put parameters into dictionaries...
-        ####################################
-        pdict = dict( N = N, M = M, U=U, gridspc = gridspc, origin = origin, mu = mu, Wi = Wi, beta=beta, eps_grid=eps_grid, veldocstring=veldocstring)
-        wdict = dict(pdict=pdict,myVelocity=myVelocity)
-        pdict = None #to avoid heisenbugs during refactor
-
-        #make the grid
-        l0 = mygrids.makeGridCenter(N,M,gridspc,origin)
-        P0 = np.zeros((N,M,2,2))
-        P0[:,:,0,0] = (1.0 +l0[:,:,1]**2)**(1.0/(2*Wi*U) - 1.0) + 1.0/(1.0-2*Wi*U)
-        P0[:,:,1,1] = 1.0
-        print(P0.shape)
-        y0 = np.append(l0.flatten(),P0.flatten())    
-        #Viscoelastic run
-        print('Extensional flow, initial y gradient, N = %02d' % N)
-        StateSave = eVE.mySolver(eVE.viscoElasticUpdater_bgvel,y0,t0,dt,totalTime,wdict,stressflag,regridding,rtol=rtol)        
-        #save the output
-        StateSave['pdict']=wdict['pdict']
-        StateSave['dt']=dt
-        fname = basedir + fnamestart
-        F = open( fname+'_eps%03d_N%03d_Wi%02d_Time%02d.pickle' % (int(round(eps_grid*1000)),N,int(round(Wi)),int(round(totalTime))), 'w' )
-        Pickler(F).dump(StateSave)
-        F.close()
+    for rtol in [1.e-3,1.e-4,1.e-5,1.e-6]:
+        fnamestart = 'ext_initygrad_PtinC_noregrid_rtol%02d' % int(np.abs(np.log10(rtol)))
+    
+        Nlist = [20]#,40,80]
+        for N in Nlist:
+            gridspc = xextent/N
+            M = int(np.ceil(yextent/gridspc))
+            ####################################
+            #Put parameters into dictionaries...
+            ####################################
+            pdict = dict( N = N, M = M, U=U, gridspc = gridspc, origin = origin, mu = mu, Wi = Wi, beta=beta, eps_grid=eps_grid, veldocstring=veldocstring)
+            wdict = dict(pdict=pdict,myVelocity=myVelocity)
+            pdict = None #to avoid heisenbugs during refactor
+    
+            #make the grid
+            l0 = mygrids.makeGridCenter(N,M,gridspc,origin)
+            P0 = np.zeros((N,M,2,2))
+            P0[:,:,0,0] = (1.0 +l0[:,:,1]**2)**(1.0/(2*Wi*U) - 1.0) + 1.0/(1.0-2*Wi*U)
+            P0[:,:,1,1] = 1.0
+            print(P0.shape)
+            y0 = np.append(l0.flatten(),P0.flatten())    
+            #Viscoelastic run
+            print('Extensional flow, initial y gradient, N = %02d' % N)
+            StateSave = eVE.mySolver(eVE.viscoElasticUpdater_bgvel,y0,t0,dt,totalTime,wdict,stressflag,regridding,rtol=rtol)        
+            #save the output
+            StateSave['pdict']=wdict['pdict']
+            StateSave['dt']=dt
+            fname = basedir + fnamestart
+            F = open( fname+'_eps%03d_N%03d_Wi%02d_Time%02d.pickle' % (int(round(eps_grid*1000)),N,int(round(Wi)),int(round(totalTime))), 'w' )
+            Pickler(F).dump(StateSave)
+            F.close()
 
 
 if __name__ == '__main__':
