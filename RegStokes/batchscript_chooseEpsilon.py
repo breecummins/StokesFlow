@@ -21,7 +21,7 @@ import os
 from cPickle import Pickler
 import engine_RegularizedStokeslets as RS
 import viz_RegularizedStokeslets as vRS
-import CompareRegExact as CRE
+import batchscript_CompareRegExact as CRE
 import lib_ExactSolns as lES
 
 def exactDragForces(a,v,alph,mu):
