@@ -604,8 +604,8 @@ if __name__ == '__main__':
 #    checkSwimmerLength(basename,basedir)
 #    swimmerOnlyComp(basename,basedir,basenamestokes,basedir,swimdir)
 #    stressTrace(basename,basedir,swimdir)
-    makeEllipses_Deviation(basedir,basename)
-#    makeEllipses(basedir,basename)
+#    makeEllipses_Deviation(basedir,basename)
+    makeEllipses(basedir,basename)
 #    Wilist = [0.0,0.25, 0.5, 0.75]#, 1.0, 1.25, 1.5, 1.75]#[1.6]#[0.1,0.08,0.06,0.04,0.02]
 #    epslist = ['036']
 #    basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/TFS_FinalParams/')
