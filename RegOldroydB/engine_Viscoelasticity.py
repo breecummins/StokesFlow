@@ -27,7 +27,7 @@ import forces_Viscoelasticity
 import bgvels_Viscoelasticity 
 #import swimmervisualizer as sv
 try:
-    import pythoncode.cext.CubicStokeslet2D as CM
+    import StokesFlow.cext.CubicStokeslet2D as CM
 except:
     print('Please compile the C extension CubicStokeslet2D.c and put the .so in the cext folder.')
     raise(SystemExit)

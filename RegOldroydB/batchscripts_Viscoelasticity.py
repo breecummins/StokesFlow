@@ -45,26 +45,21 @@ def mySwimmer_TeranFauciShelley():
     a = 0.16
     w = -2*np.pi #swimmer period is 1
     lam = 2.5*np.pi
-    Np = 26
     L = 0.6
-    h = L/(Np-1)
     K =40.0
-    xr = np.array([h])
-    forcedict = dict(a=a, w=w, t=0, Kcurv=0.2, lam=lam, Np=Np, h=h, L=L, K=K, xr=xr)
-    eps_obj = 2*h
     myForces = forces_Viscoelasticity.calcForcesSwimmerTFS
     forcedocstring = 'Swimmer curvature forces according to Teran, Fauci, and Shelley: forces_Viscoelasticity.calcForcesSwimmerTFS'
+    forcedict = dict(a=a, w=w, t=0, Kcurv=0.2, lam=lam, L=L, K=K)
     # solver options for viscoelastic flow
     stressflag=1
     regridding=1
     regriddict = dict(timecrit=0.4,edgecrit=None,detcrit=None,scalefactor=2,addpts=0)
     vfname = 'visco_PtinC_fixedregrid004_scalefactor2_addpts0_'
 
-
     ####################################
-    #Put parameters into dictionaries...
+    #Set up dictionaries for parameters...
     ####################################
-    pdict = dict( mu=mu, forcedict=forcedict, eps_obj=eps_obj, forcedocstring=forcedocstring)
+    pdict = dict( mu=mu, forcedocstring=forcedocstring)
     wdict = dict(pdict=pdict,myForces=myForces)
     pdict = None #to avoid heisenbugs during refactor
 
@@ -79,39 +74,60 @@ def mySwimmer_TeranFauciShelley():
             if not os.path.exists(basedir):
                 print('Choose a different directory for saving files')
                 raise(SystemExit)
-            
+                       
     ####################################
-    #Stokes flow reference run...
+    #loop over parameters
     ####################################
-    #Set up initial conditions for flat swimmer
-    y00 = 0.5*np.ones((2*Np,))
-    v = np.arange(0.3,0.3+L+h/2,h)
-    y00[:-1:2] = v         
- 
-    #Initialize flat swimmer in Stokes flow (ramp up to emergent swimming shape)
-    print('Initialize swimmer in Stokes flow...')
-    StateSave = eVE.mySolver(eVE.stokesFlowUpdater,y00,t0,dt,initTime,wdict)
-    inits = np.asarray(StateSave['fpts'])[-1,:]                 
+    Wilist = [1.0]#[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0, 2.5, 3.0]#[0.1,0.08,0.06,0.04,0.02]
+    Nlist = [108]#[54] #[20,40,80,160]
+    Nplist = [54]#[26]
+    for k in range(len(Nlist)):
+        Np = Nplist[k]
+        h = L/(Np-1)
+        xr = np.array([h])
+        forcedict['h'] = h
+        forcedict['xr'] = xr
+        forcedict['Np'] = Np
+        eps_obj = 2*h
+        wdict['pdict']['forcedict'] = forcedict
+        wdict['pdict']['eps_obj'] = eps_obj
+        
+        ####################################
+        #Stokes flow reference run...
+        ####################################
+        #Set up initial conditions for flat swimmer
+        y00 = 0.5*np.ones((2*Np,))
+        v = np.arange(0.3,0.3+L+h/2,h)
+        y00[:-1:2] = v         
      
-    #run the ode solver for Stokes flow
-    print('Swimmer in Stokes flow...')
-    StateSave = eVE.mySolver(eVE.stokesFlowUpdater,inits,initTime,dt,totalTime+initTime,wdict)
-    #save the output
-    StateSave['pdict']=wdict['pdict']
-    F = open( basedir+'stokes_Kcurv%02d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*10)),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
-    Pickler(F).dump(StateSave)
-    F.close()
-           
-    ####################################
-    #now for viscoelastic simulations....
-    ####################################
-    Wilist = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0, 2.5, 3.0]#[0.1,0.08,0.06,0.04,0.02]
-    Nlist = [54] #[20,40,80,160]
-    for N in Nlist:
+        #Initialize flat swimmer in Stokes flow (ramp up to emergent swimming shape)
+        print('Initialize swimmer in Stokes flow...')
+        StateSave = eVE.mySolver(eVE.stokesFlowUpdater,y00,t0,dt,initTime,wdict)
+        inits = np.asarray(StateSave['fpts'])[-1,:]                 
+         
+        #run the ode solver for Stokes flow
+        print('Swimmer in Stokes flow...')
+        StateSave = eVE.mySolver(eVE.stokesFlowUpdater,inits,initTime,dt,totalTime+initTime,wdict)
+        #save the output
+        StateSave['pdict']=wdict['pdict']
+        F = open( basedir+'stokes_Kcurv%02d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*10)),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
+        Pickler(F).dump(StateSave)
+        F.close()
+
+        ####################################
+        #Oldroyd-B flow reference run...
+        ####################################
+        #assign and record parameters
+        N = Nlist[k]
         gridspc = xextent/N
         eps_grid = eps_obj#2*gridspc
         M = int(np.ceil(yextent/gridspc))
-        #make the grid
+        wdict['pdict']['N'] = N
+        wdict['pdict']['M'] = M
+        wdict['pdict']['gridspc'] = gridspc
+        wdict['pdict']['origin'] = origin
+        wdict['pdict']['eps_grid'] = eps_grid
+        #make the initial grid
         l0 = mygrids.makeGridCenter(N,M,gridspc,origin)
         P0 = np.zeros((N,M,2,2))
         P0[:,:,0,0] = 1.0
@@ -120,15 +136,10 @@ def mySwimmer_TeranFauciShelley():
         y0 = np.append(np.append(inits, l0.flatten()),P0.flatten())
         
         for Wi in Wilist:
-            #assign and record VE params
+            #assign and record params
             beta = 1./(2*Wi)
-            wdict['pdict']['N'] = N
-            wdict['pdict']['M'] = M
-            wdict['pdict']['gridspc'] = gridspc
-            wdict['pdict']['origin'] = origin
             wdict['pdict']['Wi'] = Wi
             wdict['pdict']['beta'] = beta
-            wdict['pdict']['eps_grid'] = eps_grid
         
             #Viscoelastic run
             print('Swimmer in VE flow, N = %02d, Wi = %f' % (N,Wi))
@@ -391,10 +402,10 @@ def myExtension_initygrad():
 
 
 if __name__ == '__main__':
-#    mySwimmer_TeranFauciShelley()
+    mySwimmer_TeranFauciShelley()
 #    mySwimmer_sine()
-    myExtension_initrest()
-    myExtension_initygrad()
+#    myExtension_initrest()
+#    myExtension_initygrad()
     
     
     
