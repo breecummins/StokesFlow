@@ -97,11 +97,12 @@ def viscoElasticUpdater_force(t,y,wdict):
 #    gradlt = pdict['gridspc']**2*CM.derivop(pdict['eps_grid'],pdict['mu'],l2,l2,Pd,F) + CM.derivop(pdict['eps_obj'],pdict['mu'],l2,fpts,f,F)   #grad(Stokeslet) method
     gradlt = SD2D.vectorGrad(lt3,pdict['gridspc'],N,M)   
     gradlt = np.reshape(gradlt,(N*M,2,2))
+    gradub = np.zeros(gradlt.shape)
 #    Finv = CM.matinv2x2(F)   # first grad(u) method
 #    Pt = np.zeros((N*M,2,2))
 #    for j in range(N*M):
 #        Pt[j,:,:] = np.dot(np.dot(gradlt[j,:,:],Finv[j,:,:]),P2[j,:,:]) - (1./pdict['Wi'])*(P2[j,:,:] - Finv[j,:,:].transpose())        
-    Pt = CM.stressDeriv(pdict['Wi'],gradlt,F,P2)
+    Pt = CM.stressDeriv(pdict['Wi'],gradub,gradlt,F,P2)
     return np.append(lt,Pt.flatten())
 
 def viscoElasticUpdater_bgvel(t,y,wdict):
