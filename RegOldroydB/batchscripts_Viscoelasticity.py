@@ -78,9 +78,9 @@ def mySwimmer_TeranFauciShelley():
     #loop over parameters
     ####################################
     Wilist = [1.0]#[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0, 2.5, 3.0]#[0.1,0.08,0.06,0.04,0.02]
-    Nlist = [216] #[54,108, 216]#[20,40,80,160]
-    Nplist = [98]#[26, 50, 98]
-    Kcurvlist = [0.2/5]#[0.2, 0.2/3, 0.2/4] 
+    Nlist = [54,108, 216]#[20,40,80,160]
+    Nplist = [26]#[26, 50, 98]
+    Kcurvlist = [0.2]#[0.2, 0.2/3, 0.2/4] 
     Klist = [40.] #[40.,20.,10.]
     for k in range(len(Nlist)):
         Np = Nplist[k]
@@ -117,8 +117,6 @@ def mySwimmer_TeranFauciShelley():
         F = open( basedir+'stokes_Kcurv%03d_K%03d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*100)),int(round(forcedict['K'])),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
         Pickler(F).dump(StateSave)
         F.close()
-        
-        return
         
         ####################################
         #Oldroyd-B flow reference run...
