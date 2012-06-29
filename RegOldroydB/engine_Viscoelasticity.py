@@ -306,7 +306,7 @@ def mySolver(myodefunc,y0,t0,dt,totalTime,wdict,stressflag=0,regridding=0,regrid
     
     '''
     #initialize integrator
-    r = ode(myodefunc).set_integrator('vode',method=method,rtol=rtol).set_initial_value(y0,t0).set_f_params(wdict) 
+    r = ode(myodefunc).set_integrator('vode',method=method,rtol=rtol,nsteps=4000).set_initial_value(y0,t0).set_f_params(wdict) 
     # initialize list of saved variables
     StateSave={}
     StateSave['t']=[]

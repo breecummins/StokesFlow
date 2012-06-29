@@ -22,18 +22,25 @@ from mpl_toolkits.mplot3d import Axes3D
 import lib_SpatialDerivs2D as SD2D
 import numpy as np
 from utilities import fileops
-import os, sys
+import os
 
 mpl.rcParams.update({'font.size': 20})
 
-def swimmerOnly(basename,basedir):
+def swimmerOnly(basename,basedir,swimdir):
     plt.close()
     mydict = fileops.loadPickle(basename,basedir)
     myvars = swimmerVars(mydict)
     fpts = mydict['fpts']
+    if swimdir == 'right':
+        barind = -2
+    elif swimdir == 'left':
+        barind = 0
+    else:
+        print('Swimming direction not recognized. Choose "left" or "right".')
+        raise(SystemExit)
     fig=plt.figure()
     for k in range(len(mydict['t'])):
-        plt.plot([fpts[0][-2],fpts[0][-2]],[myvars[4],myvars[5]],'b',linewidth=4.0)
+        plt.plot([fpts[0][barind],fpts[0][barind]],[myvars[4],myvars[5]],'b',linewidth=4.0)
         plt.plot(fpts[k][:-1:2],fpts[k][1::2],'r',linewidth=4.0)
         plt.axis('equal')
         plt.xlim(myvars[:2])
@@ -56,7 +63,7 @@ def swimmerOnlyComp(vebasename,vebasedir,stbasename,stbasedir,swimdir):
         barind = 0
     else:
         print('Swimming direction not recognized. Choose "left" or "right".')
-        sys.exit()
+        raise(SystemExit)
     fig=plt.figure()
     for k in range(len(mydictve['t'])):
         plt.plot([vefpts[0][barind],vefpts[0][barind]],[myvars[4],myvars[5]],'b',linewidth=4.0)
@@ -587,37 +594,40 @@ def makeEllipses_Deviation(basedir,basename):
 
         
 if __name__ == '__main__':
-##    basename = 'stokes_TFS_K40_Kcurv01_lam25pi_amp016_L060_N050_Time11'        
-##    basedir = os.path.expanduser('~/VEsims/Swimmer/')             
-##    checkSwimmerLength(basename,basedir)
-##    swimmerOnly(basename,basedir)
-##    basename = 'dipole_noregrid_N050_Wi01_Time05'
-##    basedir = os.path.expanduser('~/VEsims/DipoleFlow/')
-##    stressTraceExtension(basename,basedir)
-##    pointTraj(basename,basedir)
-##    specificPointTraj(basename,basedir)
-##    plotQuiverDiff(basename,basedir)
-    basename = 'visco_fixedregrid004_scalefactor2_addpts0_epsobj036_epsgrid036_N054_Wi0100_Time11'
-    basenamestokes = 'stokes_epsobj036_Time11'
-    basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/TFS_FinalParams/')
-    swimdir = 'right'
-#    checkSwimmerLength(basename,basedir)
-#    swimmerOnlyComp(basename,basedir,basenamestokes,basedir,swimdir)
-#    stressTrace(basename,basedir,swimdir)
-#    makeEllipses_Deviation(basedir,basename)
-    makeEllipses(basedir,basename)
-#    Wilist = [0.0,0.25, 0.5, 0.75]#, 1.0, 1.25, 1.5, 1.75]#[1.6]#[0.1,0.08,0.06,0.04,0.02]
-#    epslist = ['036']
+###    basename = 'stokes_TFS_K40_Kcurv01_lam25pi_amp016_L060_N050_Time11'        
+###    basedir = os.path.expanduser('~/VEsims/Swimmer/')             
+###    checkSwimmerLength(basename,basedir)
+###    swimmerOnly(basename,basedir)
+###    basename = 'dipole_noregrid_N050_Wi01_Time05'
+###    basedir = os.path.expanduser('~/VEsims/DipoleFlow/')
+###    stressTraceExtension(basename,basedir)
+###    pointTraj(basename,basedir)
+###    specificPointTraj(basename,basedir)
+###    plotQuiverDiff(basename,basedir)
+#    basename = 'visco_fixedregrid004_scalefactor2_addpts0_epsobj036_epsgrid036_N054_Wi0100_Time11'
+#    basenamestokes = 'stokes_epsobj036_Time11'
 #    basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/TFS_FinalParams/')
-#    for estr in epslist:
-#        bnamelist = ['visco_fixedregrid004_scalefactor2_addpts0_epsobj'+estr+'_epsgrid'+estr+'_N054_Wi%04d_Time11' % int(Wi*100) for Wi in Wilist]
-#        bnamelist[0]='stokes_epsobj'+estr+'_Time11'
-#        xf = plotFinalPosition(basedir,bnamelist,Wilist,'Wi','_vsWi_eps'+estr)
-#        print(xf)
-#    epslist = [0.024,0.036,0.048,0.060,0.072,0.096]
-#    basedir = os.path.expanduser('~/VEsims/Swimmer/TFS_FinalParams_SmallerDomain/')
-#    bnamelist = ['stokes_eps%03d_N054_Time11' % int(e*1000) for e in epslist]
-#    xf = plotFinalPositionUnnormalized(basedir,bnamelist,epslist,'$\epsilon$','_stokesdistvseps')
-#    print(xf)
-
+#    swimdir = 'right'
+##    checkSwimmerLength(basename,basedir)
+##    swimmerOnlyComp(basename,basedir,basenamestokes,basedir,swimdir)
+##    stressTrace(basename,basedir,swimdir)
+##    makeEllipses_Deviation(basedir,basename)
+#    makeEllipses(basedir,basename)
+##    Wilist = [0.0,0.25, 0.5, 0.75]#, 1.0, 1.25, 1.5, 1.75]#[1.6]#[0.1,0.08,0.06,0.04,0.02]
+##    epslist = ['036']
+##    basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/TFS_FinalParams/')
+##    for estr in epslist:
+##        bnamelist = ['visco_fixedregrid004_scalefactor2_addpts0_epsobj'+estr+'_epsgrid'+estr+'_N054_Wi%04d_Time11' % int(Wi*100) for Wi in Wilist]
+##        bnamelist[0]='stokes_epsobj'+estr+'_Time11'
+##        xf = plotFinalPosition(basedir,bnamelist,Wilist,'Wi','_vsWi_eps'+estr)
+##        print(xf)
+##    epslist = [0.024,0.036,0.048,0.060,0.072,0.096]
+##    basedir = os.path.expanduser('~/VEsims/Swimmer/TFS_FinalParams_SmallerDomain/')
+##    bnamelist = ['stokes_eps%03d_N054_Time11' % int(e*1000) for e in epslist]
+##    xf = plotFinalPositionUnnormalized(basedir,bnamelist,epslist,'$\epsilon$','_stokesdistvseps')
+##    print(xf)
+    basename = 'stokes_Kcurv004_K040_epsobj009_Time11'
+    basedir = os.path.expanduser('/Volumes/ExtMacBree/VEsims/SwimmerRefactored/TFS_FinalParams/')
+    swimdir = 'right'
+    swimmerOnly(basename,basedir,swimdir)
     

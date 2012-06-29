@@ -46,10 +46,9 @@ def mySwimmer_TeranFauciShelley():
     w = -2*np.pi #swimmer period is 1
     lam = 2.5*np.pi
     L = 0.6
-    K =40.0
     myForces = forces_Viscoelasticity.calcForcesSwimmerTFS
     forcedocstring = 'Swimmer curvature forces according to Teran, Fauci, and Shelley: forces_Viscoelasticity.calcForcesSwimmerTFS'
-    forcedict = dict(a=a, w=w, t=0, lam=lam, L=L, K=K)
+    forcedict = dict(a=a, w=w, t=0, lam=lam, L=L)
     # solver options for viscoelastic flow
     stressflag=1
     regridding=1
@@ -80,17 +79,20 @@ def mySwimmer_TeranFauciShelley():
     ####################################
     Wilist = [1.0]#[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0, 2.5, 3.0]#[0.1,0.08,0.06,0.04,0.02]
     Nlist = [216] #[54,108, 216]#[20,40,80,160]
-    Nplist = [108]#[26, 54, 108]
-    Kcurvlist = [0.2/20]#[0.2, 0.2/4, 0.2/20] 
+    Nplist = [98]#[26, 50, 98]
+    Kcurvlist = [0.2/5]#[0.2, 0.2/3, 0.2/4] 
+    Klist = [40.] #[40.,20.,10.]
     for k in range(len(Nlist)):
         Np = Nplist[k]
         h = L/(Np-1)
+        print(h,xextent/Nlist[k])
         xr = np.array([h])
         forcedict['h'] = h
         forcedict['xr'] = xr
         forcedict['Np'] = Np
         forcedict['Kcurv'] = Kcurvlist[k]
-        eps_obj = 2*h
+        forcedict['K'] = Klist[k]
+        eps_obj = 1.5*h
         wdict['pdict']['forcedict'] = forcedict
         wdict['pdict']['eps_obj'] = eps_obj
         
@@ -112,9 +114,11 @@ def mySwimmer_TeranFauciShelley():
         StateSave = eVE.mySolver(eVE.stokesFlowUpdater,inits,initTime,dt,totalTime+initTime,wdict)
         #save the output
         StateSave['pdict']=wdict['pdict']
-        F = open( basedir+'stokes_Kcurv%02d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*10)),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
+        F = open( basedir+'stokes_Kcurv%03d_K%03d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*100)),int(round(forcedict['K'])),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
         Pickler(F).dump(StateSave)
         F.close()
+        
+        return
         
         ####################################
         #Oldroyd-B flow reference run...
@@ -149,7 +153,7 @@ def mySwimmer_TeranFauciShelley():
             #save the output
             StateSave['pdict']=wdict['pdict']
             StateSave['regriddict']=regriddict
-            F = open(basedir+vfname+'Kcurv%02d_epsobj%03d_epsgrid%03d_N%03d_Wi%04d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*10)),int(round(eps_obj*1000)),int(round(eps_grid*1000)),N,int(round(Wi*100)),int(totalTime+initTime)), 'w' )
+            F = open(basedir+vfname+'Kcurv%03d_K%03d_epsobj%03d_epsgrid%03d_N%03d_Wi%04d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*100)),int(round(forcedict['K'])),int(round(eps_obj*1000)),int(round(eps_grid*1000)),N,int(round(Wi*100)),int(totalTime+initTime)), 'w' )
             Pickler(F).dump(StateSave)
             F.close()
             
