@@ -222,6 +222,8 @@ def getErrors(basedir,basenamelist,soln='ygrad',xvals=None,xlab=None,leglist=['x
 #        errorsonept.append(err)
     errsinf=np.asarray(errorsLinf)
     if xvals != None:
+        print('xvals')
+        print(xvals)
         timeind = -1
         timestr = '%03d' % int(mydict['t'][timeind])
         errfname = 'maxerrs_time' + timestr

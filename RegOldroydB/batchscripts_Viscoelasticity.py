@@ -287,7 +287,6 @@ def myExtension_initrest():
     #note that I do not control the time step in the solver!! 
     # my time step only determines the maximum time step allowed
     t0 = 0; totalTime = 3.0; dt = 5.e-2    
-    eps_grid = 0.2
     myVelocity = bgvels_Viscoelasticity.Extension     
     veldocstring = 'Purely extensional flow near hyperbolic stagnation point: bgvels_Viscoelasticity.Extension'
     # solver options for viscoelastic flow
@@ -311,6 +310,7 @@ def myExtension_initrest():
         Nlist = [20]#,40,80]
         for N in Nlist:
             gridspc = xextent/N
+            eps_grid = 2*gridspc
             M = int(np.ceil(yextent/gridspc))
             ####################################
             #Put parameters into dictionaries...
@@ -354,7 +354,6 @@ def myExtension_initygrad():
     #note that I do not control the time step in the solver!! 
     # my time step only determines the maximum time step allowed
     t0 = 0; totalTime = 3.0; dt = 5.e-2    
-    eps_grid = 0.2
     myVelocity = bgvels_Viscoelasticity.Extension     
     veldocstring = 'Purely extensional flow near hyperbolic stagnation point: bgvels_Viscoelasticity.Extension'
     # solver options for viscoelastic flow
@@ -378,6 +377,7 @@ def myExtension_initygrad():
         Nlist = [20]#,40,80]
         for N in Nlist:
             gridspc = xextent/N
+            eps_grid = 2*gridspc
             M = int(np.ceil(yextent/gridspc))
             ####################################
             #Put parameters into dictionaries...
@@ -406,10 +406,10 @@ def myExtension_initygrad():
 
 
 if __name__ == '__main__':
-    mySwimmer_TeranFauciShelley()
+#    mySwimmer_TeranFauciShelley()
 #    mySwimmer_sine()
-#    myExtension_initrest()
-#    myExtension_initygrad()
+    myExtension_initrest()
+    myExtension_initygrad()
     
     
     
