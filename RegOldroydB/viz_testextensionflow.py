@@ -143,21 +143,21 @@ def stressComponents(P, S, mydict, basename,basedir,fname='NumSoln'):
     plt.savefig(fnameP)
     plt.close()
     
-def compareErrs(errs,xvals,xlab,basedir,errfname,errtitlestr,timeind,timestr,leglist=None):
+def compareErrs(errs,xvals,xlab,basedir,errfname,errtitlestr,timeind,timestr):
+    plt.clf()
     fixedtimelist = []    
-    print(errs.shape)
+    leglistorig=['x','y','$P_{11}$','$P_{12}$','$P_{21}$','$P_{22}$','$S_{11}$','$S_{12}$','$S_{21}$','$S_{22}$']
+    inds = [0,1,2,5,6,9]  
+    leglist = [leglistorig[k] for k in inds] 
     for k in range(errs.shape[0]):
-        print( np.max(errs[k,:10,:]) )
-        fixedtimelist.append( errs[k,:10,timeind] )
+        print( np.max(errs[k,inds,:]) )
+        fixedtimelist.append( errs[k,inds,timeind] )
     ftl = np.asarray(fixedtimelist)
     print(ftl)
-    plt.clf()
-    plt.close()
-    plt.plot(xvals,ftl,linewidth=2)
+    plt.loglog(xvals,ftl,linewidth=2)
     plt.xlabel(xlab)
     plt.ylabel('Error')
-    if leglist != None:
-        plt.legend(leglist,bbox_to_anchor=(1.15, 1.15))
+    plt.legend(leglist,bbox_to_anchor=(1.15, 1.15))
     plt.title(errtitlestr)
     fnameP = basedir + errfname + '_compareErrs.pdf'
     plt.savefig(fnameP)

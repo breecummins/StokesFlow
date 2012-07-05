@@ -193,7 +193,7 @@ def calcerrsonepoint(l,P,S,lcalc, Pcalc, Scalc,mydict):
     return errors,mydict 
 
 
-def getErrors(basedir,basenamelist,soln='ygrad',xvals=None,xlab=None,leglist=['x','y','$P_{11}$','$P_{12}$','$P_{21}$','$P_{22}$','$S_{11}$','$S_{12}$','$S_{21}$','$S_{22}$']):
+def getErrors(basedir,basenamelist,soln='ygrad',xvals=None,xlab=None):
     errorsLinf=[]
     Pnum = []
     Snum = []
@@ -222,19 +222,17 @@ def getErrors(basedir,basenamelist,soln='ygrad',xvals=None,xlab=None,leglist=['x
 #        errorsonept.append(err)
     errsinf=np.asarray(errorsLinf)
     if xvals != None:
-        print('xvals')
-        print(xvals)
         timeind = -1
         timestr = '%03d' % int(mydict['t'][timeind])
-        errfname = 'maxerrs_time' + timestr
-        errtitlestr = errtitlestr + ' at time = ' + timestr
-        vizTEF.compareErrs(errsinf,xvals,xlab,basedir,errfname,errtitlestr,timeind,timestr,leglist)
+        errfname = 'maxerrs_time' + soln + timestr
+        errtitlestr = errtitlestr + ' at time = ' + '%.1f' % mydict['t'][timeind]
+        vizTEF.compareErrs(errsinf,xvals,xlab,basedir+basename+'/',errfname,errtitlestr,timeind,timestr)
     return errsinf,Pnum,Snum
 
 
 if __name__ == '__main__':
     basedir = '/Volumes/ExtMacBree/VEsims/ExactExtensionalFlow/'
-    basenamelist = ['ext_initrest_PtinC_noregrid_rtol%02d_eps200_N020_Wi01_Time03' % k for k in [6,5,4,3] ]
+    basenamelist = ['ext_initrest_PtinC_noregrid_rtol%02d_eps050_N020_Wi01_Time03' % k for k in [6,5,4,3] ]
     soln='rest'
     xvals = [1.e-6,1.e-5,1.e-4,1.e-3]
     xlab = 'relative tolerance'

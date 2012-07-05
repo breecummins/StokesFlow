@@ -406,11 +406,11 @@ def myExtension_initygrad():
 
 
 if __name__ == '__main__':
-#    mySwimmer_TeranFauciShelley()
+    mySwimmer_TeranFauciShelley()
 #    mySwimmer_sine()
-    myExtension_initrest()
-    myExtension_initygrad()
-    
+#    myExtension_initrest()
+#    myExtension_initygrad()
+#    
     
     
     
