@@ -29,8 +29,11 @@ import bgvels_Viscoelasticity
 try:
     import StokesFlow.cext.CubicStokeslet2D as CM
 except:
-    print('Please compile the C extension CubicStokeslet2D.c and put the .so in the cext folder.')
-    raise(SystemExit)
+    try:
+        import cext.CubicStokeslet2D as CM
+    except:
+        print('Please compile the C extension CubicStokeslet2D.c and put the .so in the cext folder.')
+        raise(SystemExit)
 
 def isIntDivisible(x,y,p=1.e-8):
     m = x/y
