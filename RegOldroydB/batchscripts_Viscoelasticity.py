@@ -80,43 +80,46 @@ def mySwimmer_TeranFauciShelley():
     Wilist = [1.0]#[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0, 2.5, 3.0]#[0.1,0.08,0.06,0.04,0.02]
     Nlist = [54,108, 216]#[20,40,80,160]
     Nplist = [26]#[26, 50, 98]
+    Np = Nplist[0]
+    h = L/(Np-1)
     Kcurvlist = [0.2]#[0.2, 0.2/3, 0.2/4] 
+    Kcurv = Kcurvlist[0]
     Klist = [40.] #[40.,20.,10.]
-    for k in range(len(Nlist)):
-        Np = Nplist[k]
-        h = L/(Np-1)
-        print(h,xextent/Nlist[k])
-        xr = np.array([h])
-        forcedict['h'] = h
-        forcedict['xr'] = xr
-        forcedict['Np'] = Np
-        forcedict['Kcurv'] = Kcurvlist[k]
-        forcedict['K'] = Klist[k]
-        eps_obj = 1.5*h
-        wdict['pdict']['forcedict'] = forcedict
-        wdict['pdict']['eps_obj'] = eps_obj
-        
-        ####################################
-        #Stokes flow reference run...
-        ####################################
-        #Set up initial conditions for flat swimmer
-        y00 = 0.5*np.ones((2*Np,))
-        v = np.arange(0.3,0.3+L+h/2,h)
-        y00[:-1:2] = v         
+    K = Klist[0]
+    xr = np.array([h])
+    forcedict['h'] = h
+    forcedict['xr'] = xr
+    forcedict['Np'] = Np
+    forcedict['Kcurv'] = Kcurv
+    forcedict['K'] = K
+    eps_obj = 1.5*h
+    wdict['pdict']['forcedict'] = forcedict
+    wdict['pdict']['eps_obj'] = eps_obj
+
+    ####################################
+    #Stokes flow reference run...
+    ####################################
+    #Set up initial conditions for flat swimmer
+    y00 = 0.5*np.ones((2*Np,))
+    v = np.arange(0.3,0.3+L+h/2,h)
+    y00[:-1:2] = v         
+ 
+    #Initialize flat swimmer in Stokes flow (ramp up to emergent swimming shape)
+    print('Initialize swimmer in Stokes flow...')
+    StateSave = eVE.mySolver(eVE.stokesFlowUpdater,y00,t0,dt,initTime,wdict)
+    inits = np.asarray(StateSave['fpts'])[-1,:]                 
      
-        #Initialize flat swimmer in Stokes flow (ramp up to emergent swimming shape)
-        print('Initialize swimmer in Stokes flow...')
-        StateSave = eVE.mySolver(eVE.stokesFlowUpdater,y00,t0,dt,initTime,wdict)
-        inits = np.asarray(StateSave['fpts'])[-1,:]                 
-         
-        #run the ode solver for Stokes flow
-        print('Swimmer in Stokes flow...')
-        StateSave = eVE.mySolver(eVE.stokesFlowUpdater,inits,initTime,dt,totalTime+initTime,wdict)
-        #save the output
-        StateSave['pdict']=wdict['pdict']
-        F = open( basedir+'stokes_Kcurv%03d_K%03d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*100)),int(round(forcedict['K'])),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
-        Pickler(F).dump(StateSave)
-        F.close()
+    #run the ode solver for Stokes flow
+    print('Swimmer in Stokes flow...')
+    StateSave = eVE.mySolver(eVE.stokesFlowUpdater,inits,initTime,dt,totalTime+initTime,wdict)
+    #save the output
+    StateSave['pdict']=wdict['pdict']
+    F = open( basedir+'stokes_Kcurv%03d_K%03d_epsobj%03d_Time%02d.pickle' % (int(round(forcedict['Kcurv']*100)),int(round(forcedict['K'])),int(round(eps_obj*1000)),int(totalTime+initTime)), 'w' )
+    Pickler(F).dump(StateSave)
+    F.close()
+    for k in range(len(Nlist)):
+        print(h,xextent/Nlist[k])
+        
         
         ####################################
         #Oldroyd-B flow reference run...
