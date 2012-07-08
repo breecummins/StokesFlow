@@ -16,8 +16,14 @@
 #
 
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+try:
+    import StokesFlow.utilities.fileops as fo
+except:
+    import utilities.fileops as fo
+import lib_RegularizedStokeslets as lRS
 
 def contourCircle(x,y,a,u,fname=None,ulevs=None,titlestr=None):
     ind = np.nonzero(x**2 + y**2 > a**2)
@@ -68,5 +74,32 @@ def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=
     if fname != None:
         plt.savefig(fname,format='pdf')
 
+def plotchooseepserr(basedir,basename):
+    mydict = fo.loadPickle(basename,basedir)
+    earr = np.asarray(mydict['epslist'])
+    freqlist = mydict['freqlist']
+    vRS.plainPlots(earr,mydict['umag_err_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/zradius_umag_err_negex.pdf')
+    vRS.plainPlots(earr,mydict['umag_err_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/zradius_umag_err_gauss.pdf')
+    vRS.plainPlots(earr,mydict['umag_axiserr_negex'][:,:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/zradius_umag_axiserr_negex.pdf')
+    vRS.plainPlots(earr,mydict['umag_axiserr_gauss'][:,:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/zradius_umag_axiserr_gauss.pdf')
 
+def plotblobs(basedir,basename,epslist):
+    r = np.linspace(0,1.e-2)
+    negex=[]
+    gauss=[]
+    for eps in epslist:
+        negex.append(lRS.Brinkman3DNegExpBlob(r,eps))
+        gauss.append(lRS.Brinkman3DGaussianBlob(r,eps))
+    leg = ['$\epsilon$ = ' + str(s) for s in epslist]
+    plainPlots(r,np.asarray(negex).transpose(),'Negative Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/negexpblob'+ str(epslist[0]*10000) +'.pdf')
+    plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob'+ str(epslist[0]*10000) +'.pdf')
 
+if __name__ == '__main__':
+    basedir = os.path.expanduser('/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/')
+    basename = 'zradius_farfield_BConaxis_hairrad05'
+#    plotchooseepserr(basedir,basename)
+#    epslist = [k*0.005 for k in np.arange(0.1,1.5,0.1)]
+#    plotblobs(basedir,basename,epslist)
+    plotblobs(basedir,basename,[0.0015])
+    plotblobs(basedir,basename,[0.004])
+    plotblobs(basedir,basename,[0.006])

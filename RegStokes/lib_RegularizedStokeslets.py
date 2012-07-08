@@ -18,6 +18,9 @@
 import numpy as np
 import scipy.special as ss
 
+def Brinkman3DNegExpBlob(r,eps):
+    return (r + 2*eps)**2*np.exp(-r/eps) / (224*np.pi*eps**5)
+
 def Brinkman3DNegExpStokesletsH1(r,pdict):
     ind=np.nonzero(r>=pdict['thresh'])
     lim=(2*pdict['sig']**2 + 8*pdict['sig'] + 9) / (168*pdict['eps']*np.pi*pdict['sig']**4 + 672*pdict['eps']*np.pi*pdict['sig']**3 + 1008*pdict['eps']*np.pi*pdict['sig']**2 + 672*pdict['eps']*np.pi*pdict['sig'] + 168*pdict['eps']*np.pi) #analytic limit of H1 at r=0
@@ -136,6 +139,9 @@ def Brinkman3DNegExpDipolesPressure(r,pdict):
     #limit not required since there is no division by r
     P = -np.exp(-r/pdict['eps'])*(r + 2*pdict['eps']) / (224*np.pi*pdict['eps']**6)
     return P
+
+def Brinkman3DGaussianBlob(r,eps):
+    return np.exp(-r**2/eps**2)/(np.pi**(1.5)*eps**3)
 
 def Brinkman3DGaussianStokesletsH1(r,pdict):
     ind=np.nonzero(r>=pdict['thresh'])

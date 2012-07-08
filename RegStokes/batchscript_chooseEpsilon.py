@@ -180,11 +180,6 @@ def optimizeEps():
             umag_err_gauss, uang_err_gauss = calcErr(umag_err_gauss, uang_err_gauss,u_exact[j][ind],v_exact[j][ind],0.0,u_gauss[j][k][ind],v_gauss[j][k][ind],w_gauss[j][k][ind],j,k,pdict['h'])
             umag_axiserr_negex, uang_axiserr_negex = calcErr(umag_axiserr_negex, uang_axiserr_negex,np.median(uz_negex[j][k]),np.median(vz_negex[j][k]),np.median(wz_negex[j][k]),uz_negex[j][k],vz_negex[j][k],wz_negex[j][k],j,k,pdict['h'])
             umag_axiserr_gauss, uang_axiserr_gauss = calcErr(umag_axiserr_gauss, uang_axiserr_gauss,np.median(uz_gauss[j][k]),np.median(vz_gauss[j][k]),np.median(wz_gauss[j][k]),uz_gauss[j][k],vz_gauss[j][k],wz_gauss[j][k],j,k,pdict['h'])
-    earr = np.asarray(epslist)
-#    vRS.plainPlots(earr,umag_err_negex[:,:,0].transpose(),'Magnitude u, neg exp','Epsilon','L2 error',[str(f) for f in freqlist],os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_umag_err_negex.pdf'))
-#    vRS.plainPlots(earr,umag_err_gauss[:,:,0].transpose(),'Magnitude u, gaussian','Epsilon','L2 error',[str(f) for f in freqlist],os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_umag_err_gauss.pdf'))
-#    vRS.plainPlots(earr,umag_axiserr_negex[:,:,0].transpose(),'Difference in u from median on z-axis, neg exp','Epsilon','L2 error',[str(f) for f in freqlist],os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_umag_axiserr_negex.pdf'))
-#    vRS.plainPlots(earr,umag_axiserr_gauss[:,:,0].transpose(),'Difference in u from median on z-axis, gaussian','Epsilon','L2 error',[str(f) for f in freqlist],os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_umag_axiserr_gauss.pdf'))
     mydict = {}
     mydict['umag_err_negex'] = umag_err_negex
     mydict['umag_err_gauss'] = umag_err_gauss
@@ -211,7 +206,7 @@ def optimizeEps():
     mydict['pdict'] = pdict
     mydict['freqlist'] = freqlist
     mydict['epslist'] = epslist
-    F = open( os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_farfield_BConaxis_hairrad05.pickle'), 'w' )
+    F = open( os.path.expanduser('/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/zradius_farfield_BConaxis_hairrad05.pickle'), 'w' )
     Pickler(F).dump(mydict)
     F.close()
 
@@ -223,6 +218,15 @@ def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
     uaerr[j,k,0] = h*np.sqrt( ((np.angle(ue)-np.angle(ur))**2).sum() ) 
     uaerr[j,k,1] = h*np.sqrt( ((np.angle(ve)-np.angle(vr))**2).sum() )
     uaerr[j,k,2] = h*np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() )
+    return umerr, uaerr
+
+def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
+    umerr[j,k,0] = np.sqrt( ((np.abs(ue)-np.abs(ur))**2).sum() ) / np.sqrt((np.abs(ue)**2).sum()) 
+    umerr[j,k,1] = np.sqrt( ((np.abs(ve)-np.abs(vr))**2).sum() ) / np.sqrt((np.abs(ve)**2).sum())
+    umerr[j,k,2] = np.sqrt( ((np.abs(we)-np.abs(wr))**2).sum() ) / np.sqrt((np.abs(we)**2).sum())
+    uaerr[j,k,0] = np.sqrt( ((np.angle(ue)-np.angle(ur))**2).sum() ) / np.sqrt((np.angle(ue)**2).sum() ) 
+    uaerr[j,k,1] = np.sqrt( ((np.angle(ve)-np.angle(vr))**2).sum() ) / np.sqrt((np.angle(ve)**2).sum() )
+    uaerr[j,k,2] = np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() ) / np.sqrt((np.angle(we)**2).sum() )
     return umerr, uaerr
 
 
