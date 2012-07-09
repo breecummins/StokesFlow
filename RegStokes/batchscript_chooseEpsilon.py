@@ -232,7 +232,7 @@ def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
 
 def setParams():
     basename = 'zhalfradius_farfield_BConaxis_hairrad05'
-    if os.dir.exists('/Volumes/ExtMacBree'):
+    if os.path.exists('/Volumes/ExtMacBree'):
         basedir = '/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/'
     else:
         basedir = os.path.expanduser('~/CricketProject/ChooseEpsilon/')
