@@ -156,7 +156,7 @@ def varyFreqEps_zVel(pdict,freqlist,epslist):
     return u_exact, v_exact, u_negex, v_negex, w_negex, uz_negex, vz_negex, wz_negex, u_gauss, v_gauss, w_gauss, uz_gauss, vz_gauss, wz_gauss       
         
 def optimizeEps():
-    pdict = setParams()
+    pdict, fname = setParams()
     freqlist = range(10,310,25)
     epslist = [k*pdict['circrad'] for k in np.arange(0.1,1.5,0.1)]
     u_exact, v_exact, u_negex, v_negex, w_negex, uz_negex, vz_negex, wz_negex, u_gauss, v_gauss, w_gauss, uz_gauss, vz_gauss, wz_gauss = varyFreqEps_zVel(pdict,freqlist,epslist)
@@ -206,7 +206,7 @@ def optimizeEps():
     mydict['pdict'] = pdict
     mydict['freqlist'] = freqlist
     mydict['epslist'] = epslist
-    F = open( os.path.expanduser('/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/zradius_farfield_BConaxis_hairrad05.pickle'), 'w' )
+    F = open( fname+'.pickle', 'w' )
     Pickler(F).dump(mydict)
     F.close()
 
@@ -231,10 +231,16 @@ def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
 
 
 def setParams():
+    basename = 'zhalfradius_farfield_BConaxis_hairrad05'
+    if os.dir.exists('/Volumes/ExtMacBree'):
+        basedir = '/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/'
+    else:
+        basedir = os.path.expanduser('~/CricketProject/ChooseEpsilon/')
+    fname = os.path.join(basedir,basename)
     pdict ={}
     circrad = 0.005 #millimeters
     pdict['circrad'] = circrad
-    zh = circrad
+    zh = circrad/2
     halfzpts = 200
     pdict['N'] = 400
     th = 2*np.pi/pdict['N']
@@ -272,7 +278,7 @@ def setParams():
     pdict['vh']=1.0 #mm/s
     pdict['mu']=1.85e-8 #kg/(mm s)
     pdict['nu']=15.7 #mm^2/s
-    return pdict
+    return pdict, fname
 
 if __name__ == '__main__':
     optimizeEps()
