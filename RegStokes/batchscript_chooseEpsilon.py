@@ -157,8 +157,9 @@ def varyFreqEps_zVel(pdict,freqlist,epslist):
         
 def optimizeEps():
     pdict, fname = setParams()
-    freqlist = range(10,310,25)
-    epslist = [k*pdict['circrad'] for k in np.arange(0.1,1.5,0.1)]
+    freqlist = [5,10,15,20,25] 
+    freqlist.append(range(35,310,25))
+    epslist = [k*pdict['circrad'] for k in np.arange(0.05,1.8,0.05)]
     u_exact, v_exact, u_negex, v_negex, w_negex, uz_negex, vz_negex, wz_negex, u_gauss, v_gauss, w_gauss, uz_gauss, vz_gauss, wz_gauss = varyFreqEps_zVel(pdict,freqlist,epslist)
     umag_err_negex = np.zeros((len(freqlist),len(epslist),3))
     uang_err_negex = np.zeros((len(freqlist),len(epslist),3))
@@ -168,6 +169,14 @@ def optimizeEps():
     uang_axiserr_negex = np.zeros((len(freqlist),len(epslist),3))
     umag_axiserr_gauss = np.zeros((len(freqlist),len(epslist),3))
     uang_axiserr_gauss = np.zeros((len(freqlist),len(epslist),3))
+    umag_relerr_negex = np.zeros((len(freqlist),len(epslist),3))
+    uang_relerr_negex = np.zeros((len(freqlist),len(epslist),3))
+    umag_relerr_gauss = np.zeros((len(freqlist),len(epslist),3))
+    uang_err_gauss = np.zeros((len(freqlist),len(epslist),3))
+    umag_axisrelerr_negex = np.zeros((len(freqlist),len(epslist),3))
+    uang_axisrelerr_negex = np.zeros((len(freqlist),len(epslist),3))
+    umag_axisrelerr_gauss = np.zeros((len(freqlist),len(epslist),3))
+    uang_axisrelerr_gauss = np.zeros((len(freqlist),len(epslist),3))
     ind = np.nonzero(pdict['obspts'][:,0]**2 + pdict['obspts'][:,1]**2 > 4*pdict['circrad']**2)
     print("Calculating error....")
     for j in range(len(freqlist)):
@@ -176,10 +185,14 @@ def optimizeEps():
 #        vmlevs = vRS.contourCircle(pdict['obspts'][:,0],pdict['obspts'][:,1],pdict['circrad'],np.abs(v_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_vmag_exact_freq%03d.pdf' % freq))
 #        valevs = vRS.contourCircle(pdict['obspts'][:,0],pdict['obspts'][:,1],pdict['circrad'],np.angle(v_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_vang_exact_freq%03d.pdf' % freq))
         for k in range(len(epslist)):
-            umag_err_negex, uang_err_negex = calcErr(umag_err_negex, uang_err_negex,u_exact[j][ind],v_exact[j][ind],0.0,u_negex[j][k][ind],v_negex[j][k][ind],w_negex[j][k][ind],j,k,pdict['h'])
-            umag_err_gauss, uang_err_gauss = calcErr(umag_err_gauss, uang_err_gauss,u_exact[j][ind],v_exact[j][ind],0.0,u_gauss[j][k][ind],v_gauss[j][k][ind],w_gauss[j][k][ind],j,k,pdict['h'])
-            umag_axiserr_negex, uang_axiserr_negex = calcErr(umag_axiserr_negex, uang_axiserr_negex,np.median(uz_negex[j][k]),np.median(vz_negex[j][k]),np.median(wz_negex[j][k]),uz_negex[j][k],vz_negex[j][k],wz_negex[j][k],j,k,pdict['h'])
-            umag_axiserr_gauss, uang_axiserr_gauss = calcErr(umag_axiserr_gauss, uang_axiserr_gauss,np.median(uz_gauss[j][k]),np.median(vz_gauss[j][k]),np.median(wz_gauss[j][k]),uz_gauss[j][k],vz_gauss[j][k],wz_gauss[j][k],j,k,pdict['h'])
+            umag_err_negex, uang_err_negex = calcErr(umag_err_negex, uang_err_negex,u_exact[j][ind],v_exact[j][ind],0.0,u_negex[j][k][ind],v_negex[j][k][ind],w_negex[j][k][ind],j,k,pdict['h']**2)
+            umag_err_gauss, uang_err_gauss = calcErr(umag_err_gauss, uang_err_gauss,u_exact[j][ind],v_exact[j][ind],0.0,u_gauss[j][k][ind],v_gauss[j][k][ind],w_gauss[j][k][ind],j,k,pdict['h']**2)
+            umag_axiserr_negex, uang_axiserr_negex = calcErr(umag_axiserr_negex, uang_axiserr_negex,np.median(uz_negex[j][k]),np.median(vz_negex[j][k]),np.median(wz_negex[j][k]),uz_negex[j][k],vz_negex[j][k],wz_negex[j][k],j,k,pdict['zh'])
+            umag_axiserr_gauss, uang_axiserr_gauss = calcErr(umag_axiserr_gauss, uang_axiserr_gauss,np.median(uz_gauss[j][k]),np.median(vz_gauss[j][k]),np.median(wz_gauss[j][k]),uz_gauss[j][k],vz_gauss[j][k],wz_gauss[j][k],j,k,pdict['zh'])
+            umag_relerr_negex, uang_relerr_negex = calcRelErr(umag_relerr_negex, uang_relerr_negex,u_exact[j][ind],v_exact[j][ind],0.0,u_negex[j][k][ind],v_negex[j][k][ind],w_negex[j][k][ind],j,k)
+            umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,u_exact[j][ind],v_exact[j][ind],0.0,u_gauss[j][k][ind],v_gauss[j][k][ind],w_gauss[j][k][ind],j,k)
+            umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(uz_negex[j][k]),np.median(vz_negex[j][k]),np.median(wz_negex[j][k]),uz_negex[j][k],vz_negex[j][k],wz_negex[j][k],j,k)
+            umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(uz_gauss[j][k]),np.median(vz_gauss[j][k]),np.median(wz_gauss[j][k]),uz_gauss[j][k],vz_gauss[j][k],wz_gauss[j][k],j,k)
     mydict = {}
     mydict['umag_err_negex'] = umag_err_negex
     mydict['umag_err_gauss'] = umag_err_gauss
@@ -189,6 +202,14 @@ def optimizeEps():
     mydict['umag_axiserr_gauss'] = umag_axiserr_gauss
     mydict['uang_axiserr_negex'] = uang_axiserr_negex
     mydict['uang_axiserr_gauss'] = uang_axiserr_gauss
+    mydict['umag_relerr_negex'] = umag_relerr_negex
+    mydict['umag_relerr_gauss'] = umag_relerr_gauss
+    mydict['uang_relerr_negex'] = uang_relerr_negex
+    mydict['uang_relerr_gauss'] = uang_relerr_gauss
+    mydict['umag_axisrelerr_negex'] = umag_axisrelerr_negex
+    mydict['umag_axisrelerr_gauss'] = umag_axisrelerr_gauss
+    mydict['uang_axisrelerr_negex'] = uang_axisrelerr_negex
+    mydict['uang_axisrelerr_gauss'] = uang_axisrelerr_gauss
     mydict['u_exact'] = u_exact
     mydict['v_exact'] = v_exact
     mydict['u_negex'] = u_negex
@@ -211,16 +232,16 @@ def optimizeEps():
     F.close()
 
         
-def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
-    umerr[j,k,0] = h*np.sqrt( ((np.abs(ue)-np.abs(ur))**2).sum() ) 
-    umerr[j,k,1] = h*np.sqrt( ((np.abs(ve)-np.abs(vr))**2).sum() )
-    umerr[j,k,2] = h*np.sqrt( ((np.abs(we)-np.abs(wr))**2).sum() )
-    uaerr[j,k,0] = h*np.sqrt( ((np.angle(ue)-np.angle(ur))**2).sum() ) 
-    uaerr[j,k,1] = h*np.sqrt( ((np.angle(ve)-np.angle(vr))**2).sum() )
-    uaerr[j,k,2] = h*np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() )
+def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
+    umerr[j,k,0] = np.sqrt(dx)*np.sqrt( ((np.abs(ue)-np.abs(ur))**2).sum() ) 
+    umerr[j,k,1] = np.sqrt(dx)*np.sqrt( ((np.abs(ve)-np.abs(vr))**2).sum() )
+    umerr[j,k,2] = np.sqrt(dx)*np.sqrt( ((np.abs(we)-np.abs(wr))**2).sum() )
+    uaerr[j,k,0] = np.sqrt(dx)*np.sqrt( ((np.angle(ue)-np.angle(ur))**2).sum() ) 
+    uaerr[j,k,1] = np.sqrt(dx)*np.sqrt( ((np.angle(ve)-np.angle(vr))**2).sum() )
+    uaerr[j,k,2] = np.sqrt(dx)*np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() )
     return umerr, uaerr
 
-def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
+def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
     umerr[j,k,0] = np.sqrt( ((np.abs(ue)-np.abs(ur))**2).sum() ) / np.sqrt((np.abs(ue)**2).sum()) 
     umerr[j,k,1] = np.sqrt( ((np.abs(ve)-np.abs(vr))**2).sum() ) / np.sqrt((np.abs(ve)**2).sum())
     umerr[j,k,2] = np.sqrt( ((np.abs(we)-np.abs(wr))**2).sum() ) / np.sqrt((np.abs(we)**2).sum())
@@ -231,7 +252,7 @@ def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,h):
 
 
 def setParams():
-    basename = 'zhalfradius_farfield_BConaxis_hairrad05'
+    basename = 'zradius_farfield_BConaxis_hairrad05'
     if os.path.exists('/Volumes/ExtMacBree'):
         basedir = '/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/'
     else:
@@ -240,7 +261,7 @@ def setParams():
     pdict ={}
     circrad = 0.005 #millimeters
     pdict['circrad'] = circrad
-    zh = circrad/2
+    zh = circrad
     halfzpts = 200
     pdict['N'] = 400
     th = 2*np.pi/pdict['N']
@@ -275,6 +296,7 @@ def setParams():
     zline = np.zeros((Nz,3))
     zline[:,2] = np.linspace(-halfzpts*zh,halfzpts*zh,Nz)
     pdict['obsptszline'] = zline
+    pdict['zh'] = zh
     pdict['vh']=1.0 #mm/s
     pdict['mu']=1.85e-8 #kg/(mm s)
     pdict['nu']=15.7 #mm^2/s
