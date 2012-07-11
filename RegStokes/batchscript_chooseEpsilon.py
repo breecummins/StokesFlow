@@ -255,7 +255,7 @@ def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
 
 
 def setParams():
-    basename = 'zradius_farfield_BConaxis_hairrad05'
+    basename = 'zhalfradius_farfield_BConaxis_hairrad05'
     if os.path.exists('/Volumes/ExtMacBree'):
         basedir = '/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/'
     else:
@@ -264,7 +264,7 @@ def setParams():
     pdict ={}
     circrad = 0.005 #millimeters
     pdict['circrad'] = circrad
-    zh = circrad
+    zh = circrad/2
     halfzpts = np.round(200*circrad/zh)
     pdict['N'] = 400
     th = 2*np.pi/pdict['N']
