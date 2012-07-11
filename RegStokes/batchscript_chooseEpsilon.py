@@ -161,6 +161,27 @@ def optimizeEps():
     freqlist.extend(range(35,310,25))
     epslist = [k*pdict['circrad'] for k in np.arange(0.05,1.8,0.05)]
     u_exact, v_exact, u_negex, v_negex, w_negex, uz_negex, vz_negex, wz_negex, u_gauss, v_gauss, w_gauss, uz_gauss, vz_gauss, wz_gauss = varyFreqEps_zVel(pdict,freqlist,epslist)
+    mydict = {}
+    mydict['u_exact'] = u_exact
+    mydict['v_exact'] = v_exact
+    mydict['u_negex'] = u_negex
+    mydict['v_negex'] = v_negex
+    mydict['w_negex'] = w_negex
+    mydict['u_gauss'] = u_gauss
+    mydict['v_gauss'] = v_gauss
+    mydict['w_gauss'] = w_gauss
+    mydict['uz_negex'] = uz_negex
+    mydict['vz_negex'] = vz_negex
+    mydict['wz_negex'] = wz_negex
+    mydict['uz_gauss'] = uz_gauss
+    mydict['vz_gauss'] = vz_gauss
+    mydict['wz_gauss'] = wz_gauss
+    mydict['pdict'] = pdict
+    mydict['freqlist'] = freqlist
+    mydict['epslist'] = epslist
+    F = open( fname+'.pickle', 'w' )
+    Pickler(F).dump(mydict)
+    F.close()
     umag_err_negex = np.zeros((len(freqlist),len(epslist),3))
     uang_err_negex = np.zeros((len(freqlist),len(epslist),3))
     umag_err_gauss = np.zeros((len(freqlist),len(epslist),3))
@@ -172,7 +193,7 @@ def optimizeEps():
     umag_relerr_negex = np.zeros((len(freqlist),len(epslist),3))
     uang_relerr_negex = np.zeros((len(freqlist),len(epslist),3))
     umag_relerr_gauss = np.zeros((len(freqlist),len(epslist),3))
-    uang_err_gauss = np.zeros((len(freqlist),len(epslist),3))
+    uang_relerr_gauss = np.zeros((len(freqlist),len(epslist),3))
     umag_axisrelerr_negex = np.zeros((len(freqlist),len(epslist),3))
     uang_axisrelerr_negex = np.zeros((len(freqlist),len(epslist),3))
     umag_axisrelerr_gauss = np.zeros((len(freqlist),len(epslist),3))
@@ -193,7 +214,6 @@ def optimizeEps():
             umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,u_exact[j][ind],v_exact[j][ind],0.0,u_gauss[j][k][ind],v_gauss[j][k][ind],w_gauss[j][k][ind],j,k)
             umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(uz_negex[j][k]),np.median(vz_negex[j][k]),np.median(wz_negex[j][k]),uz_negex[j][k],vz_negex[j][k],wz_negex[j][k],j,k)
             umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(uz_gauss[j][k]),np.median(vz_gauss[j][k]),np.median(wz_gauss[j][k]),uz_gauss[j][k],vz_gauss[j][k],wz_gauss[j][k],j,k)
-    mydict = {}
     mydict['umag_err_negex'] = umag_err_negex
     mydict['umag_err_gauss'] = umag_err_gauss
     mydict['uang_err_negex'] = uang_err_negex
@@ -210,23 +230,6 @@ def optimizeEps():
     mydict['umag_axisrelerr_gauss'] = umag_axisrelerr_gauss
     mydict['uang_axisrelerr_negex'] = uang_axisrelerr_negex
     mydict['uang_axisrelerr_gauss'] = uang_axisrelerr_gauss
-    mydict['u_exact'] = u_exact
-    mydict['v_exact'] = v_exact
-    mydict['u_negex'] = u_negex
-    mydict['v_negex'] = v_negex
-    mydict['w_negex'] = w_negex
-    mydict['u_gauss'] = u_gauss
-    mydict['v_gauss'] = v_gauss
-    mydict['w_gauss'] = w_gauss
-    mydict['uz_negex'] = uz_negex
-    mydict['vz_negex'] = vz_negex
-    mydict['wz_negex'] = wz_negex
-    mydict['uz_gauss'] = uz_gauss
-    mydict['vz_gauss'] = vz_gauss
-    mydict['wz_gauss'] = wz_gauss
-    mydict['pdict'] = pdict
-    mydict['freqlist'] = freqlist
-    mydict['epslist'] = epslist
     F = open( fname+'.pickle', 'w' )
     Pickler(F).dump(mydict)
     F.close()
