@@ -158,7 +158,7 @@ def varyFreqEps_zVel(pdict,freqlist,epslist):
 def optimizeEps():
     pdict, fname = setParams()
     freqlist = [5,10,15,20,25] 
-    freqlist.append(range(35,310,25))
+    freqlist.extend(range(35,310,25))
     epslist = [k*pdict['circrad'] for k in np.arange(0.05,1.8,0.05)]
     u_exact, v_exact, u_negex, v_negex, w_negex, uz_negex, vz_negex, wz_negex, u_gauss, v_gauss, w_gauss, uz_gauss, vz_gauss, wz_gauss = varyFreqEps_zVel(pdict,freqlist,epslist)
     umag_err_negex = np.zeros((len(freqlist),len(epslist),3))
@@ -262,7 +262,7 @@ def setParams():
     circrad = 0.005 #millimeters
     pdict['circrad'] = circrad
     zh = circrad
-    halfzpts = 200
+    halfzpts = np.round(200*circrad/zh)
     pdict['N'] = 400
     th = 2*np.pi/pdict['N']
     ch = circrad*th
