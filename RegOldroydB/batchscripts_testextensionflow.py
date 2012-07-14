@@ -231,7 +231,7 @@ def getErrors(basedir,basenamelist,soln='ygrad',xvals=None,xlab=None):
 
 
 if __name__ == '__main__':
-    basedir = '/Volumes/ExtMacBree/VEsims/ExactExtensionalFlow/'
+    basedir = '/Volumes/LCD/VEsims/ExactExtensionalFlow/'
     basenamelist = ['ext_initrest_PtinC_noregrid_rtol%02d_eps050_N020_Wi01_Time03' % k for k in [6,5,4,3] ]
     soln='rest'
     xvals = [1.e-6,1.e-5,1.e-4,1.e-3]
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     errsinf,Pnum,Snum=getErrors(basedir,basenamelist,soln,xvals,xlab)
     
     
-    basedir = '/Volumes/ExtMacBree/VEsims/ExactExtensionalFlow/'
+    basedir = '/Volumes/LCD/VEsims/ExactExtensionalFlow/'
     basenamelist = ['ext_initygrad_PtinC_noregrid_rtol%02d_eps200_N020_Wi01_Time03' % k for k in [6,5,4,3] ]
     soln='ygrad'
     xvals = [1.e-6,1.e-5,1.e-4,1.e-3]

@@ -627,7 +627,7 @@ if __name__ == '__main__':
 ##    xf = plotFinalPositionUnnormalized(basedir,bnamelist,epslist,'$\epsilon$','_stokesdistvseps')
 ##    print(xf)
     basename = 'stokes_Kcurv004_K040_epsobj009_Time11'
-    basedir = os.path.expanduser('/Volumes/ExtMacBree/VEsims/SwimmerRefactored/TFS_FinalParams/')
+    basedir = os.path.expanduser('/Volumes/LCD/VEsims/SwimmerRefactored/TFS_FinalParams/')
     swimdir = 'right'
     swimmerOnly(basename,basedir,swimdir)
     

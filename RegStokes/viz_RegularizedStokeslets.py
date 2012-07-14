@@ -99,7 +99,7 @@ def plotblobs(basedir,basename,epslist):
     plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob'+ str(epslist[0]*10000) +'.pdf')
 
 if __name__ == '__main__':
-    basedir = os.path.expanduser('/Volumes/ExtMacBree/CricketProject/ChooseEpsilon/')
+    basedir = os.path.expanduser('/Volumes/LCD/CricketProject/ChooseEpsilon/')
     basename = 'zradius_farfield_BConaxis_hairrad05'
     plotchooseepserr(basedir,basename)
     epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]

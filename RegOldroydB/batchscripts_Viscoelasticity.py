@@ -67,7 +67,7 @@ def mySwimmer_TeranFauciShelley():
     ####################################
     basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/TFS_FinalParams/')    
     if not os.path.exists(basedir):
-        basedir = '/Volumes/ExtMacBree/VEsims/SwimmerRefactored/TFS_FinalParams/'   
+        basedir = '/Volumes/LCD/VEsims/SwimmerRefactored/TFS_FinalParams/'   
         if not os.path.exists(basedir):        
             basedir = '/scratch03/bcummins/mydata/ve/SwimmerRefactored/TFS_FinalParams/'    
             if not os.path.exists(basedir):
@@ -206,7 +206,7 @@ def mySwimmer_sine():
     ####################################
     basedir = os.path.expanduser('~/VEsims/SwimmerRefactored/SineWave/')    
     if not os.path.exists(basedir):
-        basedir = '/Volumes/ExtMacBree/VEsims/SwimmerRefactored/SineWave/'   
+        basedir = '/Volumes/LCD/VEsims/SwimmerRefactored/SineWave/'   
         if not os.path.exists(basedir):        
             basedir = '/scratch03/bcummins/mydata/ve/SwimmerRefactored/SineWave/'    
             if not os.path.exists(basedir):
@@ -300,7 +300,7 @@ def myExtension_initrest():
     ####################################
     basedir = os.path.expanduser('~/VEsims/ExactExtensionalFlow/')
     if not os.path.exists(basedir):
-        basedir = '/Volumes/ExtMacBree/VEsims/ExactExtensionalFlow/'   
+        basedir = '/Volumes/LCD/VEsims/ExactExtensionalFlow/'   
         if not os.path.exists(basedir):        
             basedir = '/scratch03/bcummins/mydata/ve/ExactExtensionalFlow/'    
             if not os.path.exists(basedir):
@@ -367,7 +367,7 @@ def myExtension_initygrad():
     ####################################
     basedir = os.path.expanduser('~/VEsims/ExactExtensionalFlow/')
     if not os.path.exists(basedir):
-        basedir = '/Volumes/ExtMacBree/VEsims/ExactExtensionalFlow/'   
+        basedir = '/Volumes/LCD/VEsims/ExactExtensionalFlow/'   
         if not os.path.exists(basedir):        
             basedir = '/scratch03/bcummins/mydata/ve/ExactExtensionalFlow/'    
             if not os.path.exists(basedir):

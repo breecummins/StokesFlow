@@ -28,3 +28,6 @@ def loadPickle(basename,basedir,newfolder='y'):
             pass
     return mydict
 
+class ExtractDict():
+    def __init__(self,mydict):
+        self.__dict__.update(mydict)
