@@ -17,13 +17,14 @@
 
 import cPickle, os
 
-def loadPickle(basename,basedir):
+def loadPickle(basename,basedir,newfolder='y'):
     F = open(basedir+basename+'.pickle', 'r')
     mydict = cPickle.Unpickler(F).load()
     F.close()
-    try:
-        os.mkdir(basedir+basename)
-    except:
-        pass
+    if newfolder == 'y':
+        try:
+            os.mkdir(basedir+basename)
+        except:
+            pass
     return mydict
 
