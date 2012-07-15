@@ -20,14 +20,14 @@ import cPickle, os
 def loadPickle(basename,basedir,newfolder='y'):
     if not basename.endswith('.pickle'):
         basename = basename+'.pickle'
+    if newfolder == 'y':
+        try:
+            os.mkdir(os.path.join(basedir,basename.split('.pickle')[0]))
+        except:
+            pass
     F = open(os.path.join(basedir,basename), 'r')
     mydict = cPickle.Unpickler(F).load()
     F.close()
-    if newfolder == 'y':
-        try:
-            os.mkdir(basedir+basename)
-        except:
-            pass
     return mydict
 
 class ExtractDict():

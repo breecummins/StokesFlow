@@ -223,10 +223,10 @@ def adderrs(fname,mydict=None):
             umag_err_gauss, uang_err_gauss = calcErr(umag_err_gauss, uang_err_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k,d.pdict['h']**2)
             umag_axiserr_negex, uang_axiserr_negex = calcErr(umag_axiserr_negex, uang_axiserr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k,zh)
             umag_axiserr_gauss, uang_axiserr_gauss = calcErr(umag_axiserr_gauss, uang_axiserr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k,zh)
-            umag_relerr_negex, uang_relerr_negex = calcRelErr(umag_relerr_negex, uang_relerr_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k)
-            umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k)
-            umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k)
-            umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k)
+            umag_relerr_negex, uang_relerr_negex = calcRelErr(umag_relerr_negex, uang_relerr_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k,d.pdict['h']**2)
+            umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k,d.pdict['h']**2)
+            umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k,zh)
+            umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k,zh)
     #add entries to dict and save
     mydict['umag_err_negex'] = umag_err_negex
     mydict['umag_err_gauss'] = umag_err_gauss
@@ -258,16 +258,16 @@ def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
     uaerr[j,k,2] = np.sqrt(dx)*np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() )
     return umerr, uaerr
 
-def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
+def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
     ueabsdenom, ueangledenom = getRelErrDenom(ue)
     veabsdenom, veangledenom = getRelErrDenom(ve)
     weabsdenom, weangledenom = getRelErrDenom(we)
-    umerr[j,k,0] = np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabsdenom )**2).sum() ) 
-    umerr[j,k,1] = np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabsdenom )**2).sum() ) 
-    umerr[j,k,2] = np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabsdenom )**2).sum() ) 
-    uaerr[j,k,0] = np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangledenom )**2).sum() ) 
-    uaerr[j,k,1] = np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangledenom )**2).sum() ) 
-    uaerr[j,k,2] = np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangledenom )**2).sum() ) 
+    umerr[j,k,0] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabsdenom )**2).sum() ) 
+    umerr[j,k,1] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabsdenom )**2).sum() ) 
+    umerr[j,k,2] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabsdenom )**2).sum() ) 
+    uaerr[j,k,0] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangledenom )**2).sum() ) 
+    uaerr[j,k,1] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangledenom )**2).sum() ) 
+    uaerr[j,k,2] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangledenom )**2).sum() ) 
     return umerr, uaerr
 
 def getRelErrDenom(we):
