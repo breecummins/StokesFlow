@@ -18,7 +18,9 @@
 import cPickle, os
 
 def loadPickle(basename,basedir,newfolder='y'):
-    F = open(basedir+basename+'.pickle', 'r')
+    if not basename.endswith('.pickle'):
+        basename = basename+'.pickle'
+    F = open(os.path.join(basedir,basename), 'r')
     mydict = cPickle.Unpickler(F).load()
     F.close()
     if newfolder == 'y':

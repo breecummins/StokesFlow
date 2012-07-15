@@ -190,7 +190,8 @@ def optimizeEps():
     
 def adderrs(fname,mydict=None):
     if mydict == None:
-        mydict = fo.loadPickle(fname)
+        basedir,basename = os.path.split(fname)
+        mydict = fo.loadPickle(basename,basedir,'n')
     d = fo.ExtractDict(mydict)
     umag_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
     uang_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
@@ -209,7 +210,7 @@ def adderrs(fname,mydict=None):
     umag_axisrelerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
     uang_axisrelerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
     ind = np.nonzero(d.pdict['obspts'][:,0]**2 + d.pdict['obspts'][:,1]**2 > 4*d.pdict['circrad']**2)
-    zh = d.pdict['obsptszline'][0,2] - d.pdict['obsptszline'][1,2]
+    zh = d.pdict['obsptszline'][1,2] - d.pdict['obsptszline'][0,2]
     print(zh) 
     print("Calculating error....")
     for j in range(len(d.freqlist)):
@@ -258,31 +259,31 @@ def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
     return umerr, uaerr
 
 def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
-    uind = np.nonzero(np.abs(ue) < 1.e-10)
-    ueabs = ue
-    ueabs[uind] = 1.0
-    vind = np.nonzero(np.abs(ve) < 1.e-10)
-    veabs = ve
-    veabs[vind] = 1.0
-    wind = np.nonzero(np.abs(we) < 1.e-10)
-    weabs = we
-    weabs[wind] = 1.0
-    umerr[j,k,0] = np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabs )**2).sum() ) 
-    umerr[j,k,1] = np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabs )**2).sum() ) 
-    umerr[j,k,2] = np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabs )**2).sum() ) 
-    uind = np.nonzero(np.angle(ue) < 1.e-10)
-    ueangle = ue
-    ueangle[uind] = 1.0
-    vind = np.nonzero(np.angle(ve) < 1.e-10)
-    veangle = ve
-    veangle[vind] = 1.0
-    wind = np.nonzero(np.angle(we) < 1.e-10)
-    weangle = we
-    weangle[wind] = 1.0
-    uaerr[j,k,0] = np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangle )**2).sum() ) 
-    uaerr[j,k,1] = np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangle )**2).sum() ) 
-    uaerr[j,k,2] = np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangle )**2).sum() ) 
+    ueabsdenom, ueangledenom = getRelErrDenom(ue)
+    veabsdenom, veangledenom = getRelErrDenom(ve)
+    weabsdenom, weangledenom = getRelErrDenom(we)
+    umerr[j,k,0] = np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabsdenom )**2).sum() ) 
+    umerr[j,k,1] = np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabsdenom )**2).sum() ) 
+    umerr[j,k,2] = np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabsdenom )**2).sum() ) 
+    uaerr[j,k,0] = np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangledenom )**2).sum() ) 
+    uaerr[j,k,1] = np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangledenom )**2).sum() ) 
+    uaerr[j,k,2] = np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangledenom )**2).sum() ) 
     return umerr, uaerr
+
+def getRelErrDenom(we):
+    weabsdenom = np.abs(we)
+    weangledenom = np.angle(we)
+    if type(we) is np.ndarray:
+        wind = np.nonzero(weabsdenom < 1.e-10)
+        weabsdenom[wind] = 1.0
+        wind = np.nonzero(weangledenom < 1.e-10)
+        weangledenom[wind] = 1.0
+    else:
+        if weabsdenom < 1.e-10:
+            weabsdenom = 1.0
+        if weangledenom < 1.e-10:
+            weangledenom = 1.0
+    return weabsdenom, weangledenom
 
 
 def setParams():
@@ -344,10 +345,10 @@ if __name__ == '__main__':
     else:
         basedir = os.path.expanduser('~/CricketProject/ChooseEpsilon/')
     fname = os.path.join(basedir,basename)
-    addpts(fname)
+    adderrs(fname)
     print('z half radius...')
     basename = 'zhalfradius_farfield_BConaxis_hairrad05'
     fname = os.path.join(basedir,basename)
-    addpts(fname)
+    adderrs(fname)
 #    setParams()
     
