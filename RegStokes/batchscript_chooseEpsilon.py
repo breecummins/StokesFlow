@@ -28,94 +28,11 @@ try:
 except:
     import utilities.fileops as fo
 
-def exactDragForces(a,v,alph,mu):
-    ''' 
-    Exact solution for drag force on an infinite (in z) cylinder
-    of radius a oscillating in the x-direction with peak speed v.
-    alph = sqrt(i*om*rho/mu), where om is angular frequency, rho is
-    fluid density, and mu is fluid viscosity.
-    The output is the complex number representing magnitude and 
-    phase of cylinder motion at a given frequency.
-    
-    '''
-    b = alph*a
-    xdrag = -( (mu*np.pi*v*b**2)/ss.kv(0,b) ) * (ss.kv(2,b) + 2*ss.kv(1,b)/b)
-    ydrag = 0 
-    return xdrag, ydrag
-
-def regDragForces(pdict,rb,f):
-    '''
-    Approximate drag force on the cylinder (in a plane) with regularized forces.
-        
-    '''
-    S = rb.calcStressTensor(pdict['obsptscirc'],pdict['nodes'],f)
-    h = pdict['circh']
-    theta = pdict['theta']
-#    print("Difference in off-diagonal elements in the stress tensor. Should be zero:")
-#    print(np.max(np.abs(S[:,0,1]-S[:,1,0])))
-    integrandx = S[:,0,0]*np.cos(theta) + S[:,0,1]*np.sin(theta)
-    integrandy = S[:,1,0]*np.cos(theta) + S[:,1,1]*np.sin(theta)
-    xdrag = h*(integrandx.sum())
-    ydrag = h*(integrandy.sum())
-    return xdrag, ydrag
-
 def regVel(pdict,rb,f):    
     uaxis = rb.calcVel(pdict['obsptszline'],pdict['nodes'],f)
     udom = rb.calcVel(pdict['obspts'],pdict['nodes'],f)
     return uaxis, udom
     
-def varyFreqEps_Drag(pdict,freqlist,epslist):
-    xdrag_exact = []
-    ydrag_exact = []
-    xdrag_negex = [[] for j in range(len(freqlist))]
-    ydrag_negex = [[] for j in range(len(freqlist))]
-    xdrag_gauss = [[] for j in range(len(freqlist))]
-    ydrag_gauss = [[] for j in range(len(freqlist))]
-#    xdrag_ncofs = [[] for j in range(len(freqlist))]
-#    ydrag_ncofs = [[] for j in range(len(freqlist))]
-#    xdrag_gcofs = [[] for j in range(len(freqlist))]
-#    ydrag_gcofs = [[] for j in range(len(freqlist))]
-    for j in range(len(freqlist)):
-        freq = freqlist[j]
-        print("Freq=%d" % freq)
-        alph=np.sqrt(1j*2*np.pi*freq/pdict['nu'])
-        xdrag, ydrag = exactDragForces(pdict['circrad'],pdict['vh'],alph,pdict['mu'])
-        xdrag_exact.append(xdrag)
-        ydrag_exact.append(ydrag)
-        for k in range(len(epslist)):
-            eps = epslist[k]
-            print("Eps=%f" % eps)
-            rb, f =   CRE.regSolnNegExpStokesletsOnly(pdict['nodes'],eps,pdict['mu'],alph,pdict['circrad'],pdict['vh'])
-            xd,yd = regDragForces(pdict,rb,f)
-            xdrag_negex[j].append(xd)
-            ydrag_negex[j].append(yd)
-            rb, f = CRE.regSolnGaussianStokesletsOnly(pdict['nodes'],eps,pdict['mu'],alph,pdict['circrad'],pdict['vh'])
-            xd, yd = regDragForces(pdict,rb,f)
-            xdrag_gauss[j].append(xd)
-            ydrag_gauss[j].append(yd)
-#            rb, f =   CRE.regSolnChainofSpheresNegExp(pdict['nodes'],eps,pdict['mu'],alph,pdict['circrad'],pdict['vh'])
-#            xd,yd = calcRegSoln(pdict,rb,f)
-#            xdrag_ncofs[j].append(xd)
-#            ydrag_ncofs[j].append(yd)
-#            rb, f = CRE.regSolnChainofSpheresGaussian(pdict['nodes'],eps,pdict['mu'],alph,pdict['circrad'],pdict['vh'])
-#            xd, yd = calcRegSoln(pdict,rb,f)
-#            xdrag_gcofs[j].append(xd)
-#            ydrag_gcofs[j].append(yd)
-        earr = np.asarray(epslist)
-#        xarrg = np.asarray([np.abs(xdrag_exact[j])*np.ones((len(epslist,))),np.abs(xdrag_gauss[j]),np.abs(xdrag_gcofs[j])]).transpose()
-#        yarrg = np.asarray([np.abs(ydrag_exact[j])*np.ones((len(epslist,))),np.abs(ydrag_gauss[j]),np.abs(ydrag_gcofs[j])]).transpose()
-#        xarrn = np.asarray([np.abs(xdrag_exact[j])*np.ones((len(epslist,))),np.abs(xdrag_negex[j]),np.abs(xdrag_ncofs[j])]).transpose()
-#        yarrn = np.asarray([np.abs(ydrag_exact[j])*np.ones((len(epslist,))),np.abs(ydrag_negex[j]),np.abs(ydrag_ncofs[j])]).transpose()
-        xarr = np.asarray([np.abs(xdrag_exact[j])*np.ones((len(epslist,))),np.abs(xdrag_gauss[j]),np.abs(xdrag_negex[j])]).transpose()
-        yarr = np.asarray([np.abs(ydrag_exact[j])*np.ones((len(epslist,))),np.abs(ydrag_gauss[j]),np.abs(xdrag_negex[j])]).transpose()
-#        vRS.plainPlots(earr,xarrg,'Magnitude x-drag','Epsilon','Drag',['exact','gauss','gauss spheres'],os.path.expanduser('~/scratch/xdrag_zhdiameter_gauss%03d.pdf' % freq))
-#        vRS.plainPlots(earr,yarrg,'Magnitude y-drag','Epsilon','Drag',['exact','gauss','gauss spheres'],os.path.expanduser('~/scratch/ydrag_zhdiameter_gauss%03d.pdf' % freq))
-#        vRS.plainPlots(earr,xarrn,'Magnitude x-drag','Epsilon','Drag',['exact','negex','negex spheres'],os.path.expanduser('~/scratch/xdrag_zhdiameter_negex%03d.pdf' % freq))
-#        vRS.plainPlots(earr,yarrn,'Magnitude y-drag','Epsilon','Drag',['exact','negex','negex spheres'],os.path.expanduser('~/scratch/ydrag_zhdiameter_negex%03d.pdf' % freq))
-        vRS.plainPlots(earr,xarr,'Magnitude x-drag','Epsilon','Drag',['exact','gauss','negex'],os.path.expanduser('~/CricketProject/ChooseEpsilon/xdrag_zhdiameter_freq%03d.pdf' % freq))
-        vRS.plainPlots(earr,yarr,'Magnitude y-drag','Epsilon','Drag',['exact','gauss','negex'],os.path.expanduser('~/CricketProject/ChooseEpsilon/ydrag_zhdiameter_freq%03d.pdf' % freq))
-    return xdrag_exact, ydrag_exact, xdrag_negex, ydrag_negex, xdrag_gauss, ydrag_gauss       
-
 def varyFreqEps_zVel(pdict,freqlist,epslist):
     u_exact = []
     v_exact = []
