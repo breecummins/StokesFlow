@@ -74,22 +74,29 @@ def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=
     if fname != None:
         plt.savefig(fname,format='pdf')
 
-def plotchooseepserr(basedir,basename):
-    mydict = fo.loadPickle(basename,basedir)
+def plotchooseepserr_farfield(mydict,basedir,basename):
     earr = np.asarray(mydict['epslist'])
     freqlist = mydict['freqlist']
-    plainPlots(earr,mydict['umag_err_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_err_negex.pdf')
-    plainPlots(earr,mydict['umag_err_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_err_gauss.pdf')
-    plainPlots(earr,mydict['umag_axiserr_negex'][:,:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+ '/umag_axiserr_negex.pdf')
-    plainPlots(earr,mydict['umag_axiserr_gauss'][:,:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_axiserr_gauss.pdf')
-    plainPlots(earr,mydict['umag_relerr_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','Relative L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_relerr_negex.pdf')
-    plainPlots(earr,mydict['umag_relerr_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','Relative L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_relerr_gauss.pdf')
-    plainPlots(earr,mydict['umag_axisrelerr_negex'][:,:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','Relative L2 error',[str(f) for f in freqlist],basedir+basename+ '/umag_axisrelerr_negex.pdf')
-    plainPlots(earr,mydict['umag_axisrelerr_gauss'][:,:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','Relative L2 error',[str(f) for f in freqlist],basedir+basename+'/umag_axisrelerr_gauss.pdf')
-    
-    eind = 6
-    plainPlots(mydict['pdict']['obsptszline'][:,2],np.abs(np.asarray(mydict['uz_negex'])[:,eind,:]),'Magnitude u along axis, $\epsilon = $ %.04f, neg exp' % mydict['epslist'][eind],'z','|u|',[str(f) for f in freqlist],basedir+basename+'/umag_zline_negex.pdf')
-    plainPlots(mydict['pdict']['obsptszline'][:,2],np.abs(np.asarray(mydict['uz_gauss'])[:,eind,:]),'Magnitude u along axis, $\epsilon = $ %.04f, gaussian' % mydict['epslist'][eind],'z','|u|',[str(f) for f in freqlist],basedir+basename+'/umag_zline_gauss.pdf')
+    leg = [str(f) for f in freqlist]
+    plainPlots(earr,mydict['umag_err_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','L2 error',leg,basedir+basename+'/umag_err_negex.pdf')
+    plainPlots(earr,mydict['umag_err_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','L2 error',leg,basedir+basename+'/umag_err_gauss.pdf')
+    plainPlots(earr,mydict['umag_relerr_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','Relative L2 error',leg,basedir+basename+'/umag_relerr_negex.pdf')
+    plainPlots(earr,mydict['umag_relerr_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','Relative L2 error',leg,basedir+basename+'/umag_relerr_gauss.pdf')
+
+def plotchooseepserr_zline(mydict,basedir,basename):
+    earr = np.asarray(mydict['epslist'])
+    freqlist = mydict['freqlist']
+    leg = [str(f) for f in freqlist]
+    plainPlots(earr[7:],mydict['umag_axiserr_negex'][:,7:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','L2 error',leg,basedir+basename+ '/umag_axiserr_trunc2_negex.pdf')
+    plainPlots(earr[7:],mydict['umag_axiserr_gauss'][:,7:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','L2 error',leg,basedir+basename+'/umag_axiserr_trunc2_gauss.pdf')
+    plainPlots(earr[7:],mydict['umag_axisrelerr_negex'][:,7:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','Relative L2 error',leg,basedir+basename+ '/umag_axisrelerr_trunc2_negex.pdf')
+    plainPlots(earr[7:],mydict['umag_axisrelerr_gauss'][:,7:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','Relative L2 error',leg,basedir+basename+'/umag_axisrelerr_trunc2_gauss.pdf')
+
+def plotzline(mydict,basedir,basename,eind,find):    
+    eps = mydict['epslist'][eind]
+    freq = mydict['freqlist'][find]
+    plainPlots(mydict['pdict']['obsptszline'][:,2],np.abs(np.asarray(mydict['uz_negex'])[find,eind,:].transpose()),'Magnitude u along axis, $\epsilon = $ %.04f, freq = %d, neg exp'  % (eps,freq),'z','|u|',None,basedir+basename+'/umag_zline_eps%05d_freq%03d_negex.pdf' % (eps*100000,freq))
+    plainPlots(mydict['pdict']['obsptszline'][:,2],np.abs(np.asarray(mydict['uz_gauss'])[find,eind,:].transpose()),'Magnitude u along axis, $\epsilon = $ %.04f, freq = %d, gaussian' % (eps,freq),'z','|u|',None,basedir+basename+'/umag_zline_eps%05d_freq%03d_gauss.pdf' % (eps*100000,freq))
     
     
 def plotblobs(basedir,basename,epslist):
@@ -100,16 +107,39 @@ def plotblobs(basedir,basename,epslist):
         negex.append(lRS.Brinkman3DNegExpBlob(r,eps))
         gauss.append(lRS.Brinkman3DGaussianBlob(r,eps))
     leg = ['$\epsilon$ = ' + str(s) for s in epslist]
-    plainPlots(r,np.asarray(negex).transpose(),'Negative Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/negexpblob'+ str(epslist[0]*10000) +'.pdf')
-    plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob'+ str(epslist[0]*10000) +'.pdf')
+    plainPlots(r,np.asarray(negex).transpose(),'Negative Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/negexpblob%05d.pdf' % int(np.round(epslist[0]*100000)))
+    plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob%05d.pdf' % int(np.round(epslist[0]*100000)))
 
 if __name__ == '__main__':
-    basedir = os.path.expanduser('/Volumes/LCD/CricketProject/ChooseEpsilon/')
+    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]
+    eind = 10
+    eps = epslist[eind]
+    freqlist = [5,10,15,20,25] 
+    freqlist.extend(range(35,310,25))
+    find = int(len(freqlist)/2)
+    freq = freqlist[find]
+    print('freq',freq,'eps',eps)
+    basedir = os.path.expanduser('/Volumes/PATRIOT32G/CricketProject/ChooseEpsilon/')
     basename = 'zradius_farfield_BConaxis_hairrad05'
-    plotchooseepserr(basedir,basename)
+    print('loading file...')
+    mydict = fo.loadPickle(basename,basedir)
+#    print('z radius, zline...')
+#    plotzline(mydict,basedir,basename,eind,find)
+#    print('z radius, far field error...')
+#    plotchooseepserr_farfield(mydict,basedir,basename)
+    print('z radius, axis error...')
+    plotchooseepserr_zline(mydict,basedir,basename)
+
     basename = 'zhalfradius_farfield_BConaxis_hairrad05'
-    plotchooseepserr(basedir,basename)
-#    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]
+    print('loading file...')
+    mydict = fo.loadPickle(basename,basedir)
+#    print('z half radius, zline...')
+#    plotzline(mydict,basedir,basename,eind,find)
+#    print('z half radius, far field error...')
+#    plotchooseepserr_farfield(mydict,basedir,basename)
+    print('z half radius, axis error...')
+    plotchooseepserr_zline(mydict,basedir,basename)
+    plotblobs(basedir,basename,[eps])
 #    plotblobs(basedir,basename,epslist)
 #    plotblobs(basedir,basename,[0.0015])
 #    plotblobs(basedir,basename,[0.004])

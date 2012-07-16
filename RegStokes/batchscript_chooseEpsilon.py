@@ -223,10 +223,10 @@ def adderrs(fname,mydict=None):
             umag_err_gauss, uang_err_gauss = calcErr(umag_err_gauss, uang_err_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k,d.pdict['h']**2)
             umag_axiserr_negex, uang_axiserr_negex = calcErr(umag_axiserr_negex, uang_axiserr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k,zh)
             umag_axiserr_gauss, uang_axiserr_gauss = calcErr(umag_axiserr_gauss, uang_axiserr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k,zh)
-            umag_relerr_negex, uang_relerr_negex = calcRelErr(umag_relerr_negex, uang_relerr_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k,d.pdict['h']**2)
-            umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k,d.pdict['h']**2)
-            umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k,zh)
-            umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k,zh)
+            umag_relerr_negex, uang_relerr_negex = calcRelErr(umag_relerr_negex, uang_relerr_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k)
+            umag_relerr_gauss, uang_relerr_gauss = calcRelErr(umag_relerr_gauss, uang_relerr_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k)
+            umag_axisrelerr_negex, uang_axisrelerr_negex = calcRelErr(umag_axisrelerr_negex, uang_axisrelerr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k)
+            umag_axisrelerr_gauss, uang_axisrelerr_gauss = calcRelErr(umag_axisrelerr_gauss, uang_axisrelerr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k)
     #add entries to dict and save
     mydict['umag_err_negex'] = umag_err_negex
     mydict['umag_err_gauss'] = umag_err_gauss
@@ -248,6 +248,65 @@ def adderrs(fname,mydict=None):
     Pickler(F).dump(mydict)
     F.close()
 
+def adderrs_Linf(fname,mydict=None):
+    if mydict == None:
+        basedir,basename = os.path.split(fname)
+        mydict = fo.loadPickle(basename,basedir,'n')
+    d = fo.ExtractDict(mydict)
+    umag_Linf_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_err_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_err_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_axiserr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_axiserr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_axiserr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_axiserr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_relerr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_relerr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_relerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_relerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_axisrelerr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_axisrelerr_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
+    umag_Linf_axisrelerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    uang_Linf_axisrelerr_gauss = np.zeros((len(d.freqlist),len(d.epslist),3))
+    ind = np.nonzero(d.pdict['obspts'][:,0]**2 + d.pdict['obspts'][:,1]**2 > 4*d.pdict['circrad']**2)
+    zh = d.pdict['obsptszline'][1,2] - d.pdict['obsptszline'][0,2]
+    print(zh) 
+    print("Calculating error....")
+    for j in range(len(d.freqlist)):
+#        umlevs = vRS.contourCircle(d.pdict['obspts'][:,0],d.pdict['obspts'][:,1],d.pdict['circrad'],np.abs(u_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_umag_exact_freq%03d.pdf' % freq))
+#        ualevs = vRS.contourCircle(d.pdict['obspts'][:,0],d.pdict['obspts'][:,1],d.pdict['circrad'],np.angle(u_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_uang_exact_freq%03d.pdf' % freq))
+#        vmlevs = vRS.contourCircle(d.pdict['obspts'][:,0],d.pdict['obspts'][:,1],d.pdict['circrad'],np.abs(v_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_vmag_exact_freq%03d.pdf' % freq))
+#        valevs = vRS.contourCircle(d.pdict['obspts'][:,0],d.pdict['obspts'][:,1],d.pdict['circrad'],np.angle(v_exact[j]),os.path.expanduser('~/CricketProject/ChooseEpsilon/zradius_vang_exact_freq%03d.pdf' % freq))
+        for k in range(len(d.epslist)):
+            umag_Linf_err_negex, uang_Linf_err_negex = calcErrLinf(umag_Linf_err_negex, uang_Linf_err_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k)
+            umag_Linf_err_gauss, uang_Linf_err_gauss = calcErrLinf(umag_Linf_err_gauss, uang_Linf_err_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k)
+            umag_Linf_axiserr_negex, uang_Linf_axiserr_negex = calcErrLinf(umag_Linf_axiserr_negex, uang_Linf_axiserr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k)
+            umag_Linf_axiserr_gauss, uang_Linf_axiserr_gauss = calcErrLinf(umag_Linf_axiserr_gauss, uang_Linf_axiserr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k)
+            umag_Linf_relerr_negex, uang_Linf_relerr_negex = calcRelErrLinf(umag_Linf_relerr_negex, uang_Linf_relerr_negex,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_negex[j][k][ind],d.v_negex[j][k][ind],d.w_negex[j][k][ind],j,k)
+            umag_Linf_relerr_gauss, uang_Linf_relerr_gauss = calcRelErrLinf(umag_Linf_relerr_gauss, uang_Linf_relerr_gauss,d.u_exact[j][ind],d.v_exact[j][ind],0.0,d.u_gauss[j][k][ind],d.v_gauss[j][k][ind],d.w_gauss[j][k][ind],j,k)
+            umag_Linf_axisrelerr_negex, uang_Linf_axisrelerr_negex = calcRelErrLinf(umag_Linf_axisrelerr_negex, uang_Linf_axisrelerr_negex,np.median(d.uz_negex[j][k]),np.median(d.vz_negex[j][k]),np.median(d.wz_negex[j][k]),d.uz_negex[j][k],d.vz_negex[j][k],d.wz_negex[j][k],j,k)
+            umag_Linf_axisrelerr_gauss, uang_Linf_axisrelerr_gauss = calcRelErrLinf(umag_Linf_axisrelerr_gauss, uang_Linf_axisrelerr_gauss,np.median(d.uz_gauss[j][k]),np.median(d.vz_gauss[j][k]),np.median(d.wz_gauss[j][k]),d.uz_gauss[j][k],d.vz_gauss[j][k],d.wz_gauss[j][k],j,k)
+    #add entries to dict and save
+    mydict['umag_Linf_err_negex'] = umag_Linf_err_negex
+    mydict['umag_Linf_err_gauss'] = umag_Linf_err_gauss
+    mydict['uang_Linf_err_negex'] = uang_Linf_err_negex
+    mydict['uang_Linf_err_gauss'] = uang_Linf_err_gauss
+    mydict['umag_Linf_axiserr_negex'] = umag_Linf_axiserr_negex
+    mydict['umag_Linf_axiserr_gauss'] = umag_Linf_axiserr_gauss
+    mydict['uang_Linf_axiserr_negex'] = uang_Linf_axiserr_negex
+    mydict['uang_Linf_axiserr_gauss'] = uang_Linf_axiserr_gauss
+    mydict['umag_Linf_relerr_negex'] = umag_Linf_relerr_negex
+    mydict['umag_Linf_relerr_gauss'] = umag_Linf_relerr_gauss
+    mydict['uang_Linf_relerr_negex'] = uang_Linf_relerr_negex
+    mydict['uang_Linf_relerr_gauss'] = uang_Linf_relerr_gauss
+    mydict['umag_Linf_axisrelerr_negex'] = umag_Linf_axisrelerr_negex
+    mydict['umag_Linf_axisrelerr_gauss'] = umag_Linf_axisrelerr_gauss
+    mydict['uang_Linf_axisrelerr_negex'] = uang_Linf_axisrelerr_negex
+    mydict['uang_Linf_axisrelerr_gauss'] = uang_Linf_axisrelerr_gauss
+    F = open( fname+'.pickle', 'w' )
+    Pickler(F).dump(mydict)
+    F.close()
         
 def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
     umerr[j,k,0] = np.sqrt(dx)*np.sqrt( ((np.abs(ue)-np.abs(ur))**2).sum() ) 
@@ -258,16 +317,38 @@ def calcErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
     uaerr[j,k,2] = np.sqrt(dx)*np.sqrt( ((np.angle(we)-np.angle(wr))**2).sum() )
     return umerr, uaerr
 
-def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k,dx):
+def calcRelErr(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
+    N = len(ue.flat)
     ueabsdenom, ueangledenom = getRelErrDenom(ue)
     veabsdenom, veangledenom = getRelErrDenom(ve)
     weabsdenom, weangledenom = getRelErrDenom(we)
-    umerr[j,k,0] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabsdenom )**2).sum() ) 
-    umerr[j,k,1] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabsdenom )**2).sum() ) 
-    umerr[j,k,2] = np.sqrt(dx)*np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabsdenom )**2).sum() ) 
-    uaerr[j,k,0] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangledenom )**2).sum() ) 
-    uaerr[j,k,1] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangledenom )**2).sum() ) 
-    uaerr[j,k,2] = np.sqrt(dx)*np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangledenom )**2).sum() ) 
+    umerr[j,k,0] = (1.0/N)*np.sqrt( ( ( (np.abs(ue)-np.abs(ur))/ueabsdenom )**2).sum() ) 
+    umerr[j,k,1] = (1.0/N)*np.sqrt( ( ( (np.abs(ve)-np.abs(vr))/veabsdenom )**2).sum() ) 
+    umerr[j,k,2] = (1.0/N)*np.sqrt( ( ( (np.abs(we)-np.abs(wr))/weabsdenom )**2).sum() ) 
+    uaerr[j,k,0] = (1.0/N)*np.sqrt( ( ( (np.angle(ue)-np.angle(ur))/ueangledenom )**2).sum() ) 
+    uaerr[j,k,1] = (1.0/N)*np.sqrt( ( ( (np.angle(ve)-np.angle(vr))/veangledenom )**2).sum() ) 
+    uaerr[j,k,2] = (1.0/N)*np.sqrt( ( ( (np.angle(we)-np.angle(wr))/weangledenom )**2).sum() ) 
+    return umerr, uaerr
+
+def calcErrLinf(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
+    umerr[j,k,0] = np.max( np.abs(np.abs(ue)  -np.abs(ur))   )
+    umerr[j,k,1] = np.max( np.abs(np.abs(ve)  -np.abs(vr))   )
+    umerr[j,k,2] = np.max( np.abs(np.abs(we)  -np.abs(wr))   )
+    uaerr[j,k,0] = np.max( np.abs(np.angle(ue)-np.angle(ur)) )
+    uaerr[j,k,1] = np.max( np.abs(np.angle(ve)-np.angle(vr)) )
+    uaerr[j,k,2] = np.max( np.abs(np.angle(we)-np.angle(wr)) )
+    return umerr, uaerr
+
+def calcRelErrLinf(umerr,uaerr,ue,ve,we,ur,vr,wr,j,k):
+    ueabsdenom, ueangledenom = getRelErrDenom(ue)
+    veabsdenom, veangledenom = getRelErrDenom(ve)
+    weabsdenom, weangledenom = getRelErrDenom(we)
+    umerr[j,k,0] = np.max( np.abs( (np.abs(ue)  -np.abs(ur))/ueabsdenom )     )
+    umerr[j,k,1] = np.max( np.abs( (np.abs(ve)  -np.abs(vr))/veabsdenom )     )
+    umerr[j,k,2] = np.max( np.abs( (np.abs(we)  -np.abs(wr))/weabsdenom )     )
+    uaerr[j,k,0] = np.max( np.abs( (np.angle(ue)-np.angle(ur))/ueangledenom ) )
+    uaerr[j,k,1] = np.max( np.abs( (np.angle(ve)-np.angle(vr))/veangledenom ) )
+    uaerr[j,k,2] = np.max( np.abs( (np.angle(we)-np.angle(wr))/weangledenom ) )
     return umerr, uaerr
 
 def getRelErrDenom(we):
@@ -287,16 +368,16 @@ def getRelErrDenom(we):
 
 
 def setParams():
-    basename = 'zhalfradius_farfield_BConaxis_hairrad05'
-    if os.path.exists('/Volumes/LCD'):
-        basedir = '/Volumes/LCD/CricketProject/ChooseEpsilon/'
+    basename = 'zquarterradius_farfield_BConaxis_hairrad05'
+    if os.path.exists('/Volumes/PATRIOT32G'):
+        basedir = '/Volumes/PATRIOT32G/CricketProject/ChooseEpsilon/'
     else:
         basedir = os.path.expanduser('~/CricketProject/ChooseEpsilon/')
     fname = os.path.join(basedir,basename)
     pdict ={}
     circrad = 0.005 #millimeters
     pdict['circrad'] = circrad
-    zh = circrad/2
+    zh = circrad/4
     halfzpts = np.round(200*circrad/zh)
     pdict['N'] = 400
     th = 2*np.pi/pdict['N']
@@ -340,15 +421,15 @@ if __name__ == '__main__':
 #    optimizeEps()
     print('z radius....')
     basename = 'zradius_farfield_BConaxis_hairrad05'
-    if os.path.exists('/Volumes/LCD'):
-        basedir = '/Volumes/LCD/CricketProject/ChooseEpsilon/'
+    if os.path.exists('/Volumes/PATRIOT32G'):
+        basedir = '/Volumes/PATRIOT32G/CricketProject/ChooseEpsilon/'
     else:
         basedir = os.path.expanduser('~/CricketProject/ChooseEpsilon/')
     fname = os.path.join(basedir,basename)
-    adderrs(fname)
+    adderrs_Linf(fname)
     print('z half radius...')
     basename = 'zhalfradius_farfield_BConaxis_hairrad05'
     fname = os.path.join(basedir,basename)
-    adderrs(fname)
+    adderrs_Linf(fname)
 #    setParams()
     
