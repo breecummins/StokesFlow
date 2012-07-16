@@ -27,6 +27,11 @@ try:
     import StokesFlow.utilities.fileops as fo
 except:
     import utilities.fileops as fo
+try:
+    import StokesFlow.RegOldroydB.lib_Gridding as mygrids
+except:
+    import RegOldroydB.lib_Gridding as mygrids
+
 
 def regVel(pdict,rb,f):    
     uaxis = rb.calcVel(pdict['obsptszline'],pdict['nodes'],f)
@@ -310,16 +315,21 @@ def setParams():
     hl = 20*circrad
     hextent = hl - hl/2
     Npts = 5
-    size = (Npts,4*Npts)
+    Mpts = 4*Npts
     pdict['h'] = hextent/size[0]
-    X1 = CRE.makeGridCenter(size,pdict['h'],(-hl,-hl))
+    X1 = mygrids.makeGridCenter(Npts,Mpts,pdict['h'],(-hl,-hl))
+    X1 = np.reshape(X1,(Npts*Mpts,2))
     X1 = np.column_stack([X1,np.zeros(X1[:,0].shape)])
-    X2 = CRE.makeGridCenter(size,pdict['h'],(hl/2,-hl))
+    X2 = mygrids.makeGridCenter(Npts,Mpts,pdict['h'],(hl/2,-hl))
+    X2 = np.reshape(X2,(Npts*Mpts,2))
     X2 = np.column_stack([X2,np.zeros(X2[:,0].shape)])
-    newsize = (2*Npts,Npts)
-    X3 = CRE.makeGridCenter(newsize,pdict['h'],(-hl/2,-hl))
+    newN = 2*Npts
+    newM = Npts
+    X3 = mygrids.makeGridCenter(newN,newM,pdict['h'],(-hl/2,-hl))
+    X3 = np.reshape(X3,(newN*newM,2))
     X3 = np.column_stack([X3,np.zeros(X3[:,0].shape)])
-    X4 = CRE.makeGridCenter(newsize,pdict['h'],(-hl/2,hl/2))
+    X4 = mygrids.makeGridCenter(newN,newM,pdict['h'],(-hl/2,hl/2))
+    X4 = np.reshape(X4,(newN*newM,2))
     X4 = np.column_stack([X4,np.zeros(X4[:,0].shape)])
     pdict['obspts'] = np.rod.w_stack([X1,X2,X3,X4])
     nodes = np.zeros((2*halfzpts+1,3))

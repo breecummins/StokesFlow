@@ -284,28 +284,6 @@ def testRegrid():
 #        plt.savefig(os.path.expanduser('~/scratch/gridrotate%d' % scalefactor))
 
     
-    
-    
-def CCSArtShowPic():
-    endpt = 2.0
-    N=40
-    h=endpt/40
-    lold=makeGridCenter(N,N,h,origin=(0,0))
-    eps = h*2.5
-    r = -eps+2*eps*np.random.rand(*lold.shape)
-    lold=lold+r
-    import matplotlib.pyplot as plt
-    import os
-    Fold = np.exp(-((lold[:,:,0]-1.)**2+(lold[:,:,1]-1)**2)/2)*np.cos(lold[:,:,0]-1)*np.cos(lold[:,:,1]-1) 
-    Fold = Fold[:,:,np.newaxis]
-    plt.pcolor(lold[:,:,0],lold[:,:,1],Fold[:,:,0],cmap='gray') #add edgecolor='k' to get black edges
-    plt.xlim([-0.5,2.5])
-    plt.ylim([-0.5,2.5])
-    plt.axis('off')
-    plt.savefig(os.path.expanduser('~/scratch/gridfunctionArtShow.pdf'),transparent='True')
-
-   
-    
 if __name__ == '__main__':
     testRegrid()
     # CCSArtShowPic()

@@ -27,33 +27,16 @@ import os
 import lib_ExactSolns as ES
 import engine_RegularizedStokeslets as RS
 import viz_RegularizedStokeslets as vRS
+try:
+    import StokesFlow.utilities.fileops as fo
+except:
+    import utilities.fileops as fo
+try:
+    import StokesFlow.RegOldroydB.lib_Gridding as mygrids
+except:
+    import RegOldroydB.lib_Gridding as mygrids
 
-def myfile(basedir,basename):
-    try:
-        os.mkdir(basedir+basename)
-    except:
-        pass
-    F = open(basedir+basename+'.pickle', 'r')
-    mydict = cPickle.Unpickler(F).load()
-    F.close()
-    return mydict
 
-def makeGridCenter(size,h,origin=(0,0)):
-    '''
-    Constructs a uniformly-spaced, rectangular cell-centered grid in 2 dimensions.
-    size is a tuple of 2 numbers giving the number of points in each direction. 
-    h is the uniform point separation in all directions. Optional argument origin 
-    gives the lower left corner of the domain. The output is N by 2, where N is the
-    product of size.
-    
-    '''
-    X = np.mgrid[(origin[0]+h/2.):(origin[0]+h*size[0]):h,(origin[1]+h/2.):(origin[1]+h*size[1]):h]
-    x = X[0,:,:].flatten()
-    y = X[1,:,:].flatten()
-    l0 = np.zeros((2,len(x)))
-    l0[0,:] = x
-    l0[1,:] = y
-    return l0.transpose()
 
 def regSolnChainofSpheresGaussian(nodes,eps,mu,alph,circrad,vh):
     rb = RS.Brinkman3DGaussianStokesletsAndDipolesSphericalBCs(eps,mu,alph,circrad)
@@ -114,16 +97,16 @@ def graphSolns(X,Vexact,Vreg,circrad,basedir,basename):
     wmlevels = getULevels(wmag,wmag)
     walevels = getULevels(wang,wang)
     plt.figure(1)
-    plotSoln(xg,yg,ues_mag,umlevels,circrad,phi,basedir+basename+'/umag_solnexact.pdf')
-    plotSoln(xg,yg,ves_mag,vmlevels,circrad,phi,basedir+basename+'/vmag_solnexact.pdf')
-    plotSoln(xg,yg,ues_ang,ualevels,circrad,phi,basedir+basename+'/uang_solnexact.pdf')
-    plotSoln(xg,yg,ves_ang,valevels,circrad,phi,basedir+basename+'/vang_solnexact.pdf')
-    plotSoln(xg,yg,urb_mag,umlevels,circrad,phi,basedir+basename+'/umag_reg.pdf') 
-    plotSoln(xg,yg,vrb_mag,vmlevels,circrad,phi,basedir+basename+'/vmag_reg.pdf') 
-    plotSoln(xg,yg,urb_ang,ualevels,circrad,phi,basedir+basename+'/uang_reg.pdf') 
-    plotSoln(xg,yg,vrb_ang,valevels,circrad,phi,basedir+basename+'/vang_reg.pdf') 
-    plotSoln(xg,yg,wmag,wmlevels,circrad,phi,basedir+basename+'/wmag_reg.pdf')
-    plotSoln(xg,yg,wang,walevels,circrad,phi,basedir+basename+'/wang_reg.pdf') 
+    vRS.contourCircle(xg,yg,circrad,ues_mag,basedir+basename+'/umag_solnexact.pdf',umlevels)
+    vRS.contourCircle(xg,yg,circrad,ves_mag,basedir+basename+'/vmag_solnexact.pdf',vmlevels)
+    vRS.contourCircle(xg,yg,circrad,ues_ang,basedir+basename+'/uang_solnexact.pdf',ualevels)
+    vRS.contourCircle(xg,yg,circrad,ves_ang,basedir+basename+'/vang_solnexact.pdf',valevels)
+    vRS.contourCircle(xg,yg,circrad,urb_mag,basedir+basename+'/umag_reg.pdf'      ,umlevels) 
+    vRS.contourCircle(xg,yg,circrad,vrb_mag,basedir+basename+'/vmag_reg.pdf'      ,vmlevels) 
+    vRS.contourCircle(xg,yg,circrad,urb_ang,basedir+basename+'/uang_reg.pdf'      ,ualevels) 
+    vRS.contourCircle(xg,yg,circrad,vrb_ang,basedir+basename+'/vang_reg.pdf'      ,valevels) 
+    vRS.contourCircle(xg,yg,circrad,wmag   ,basedir+basename+'/wmag_reg.pdf'      ,wmlevels)
+    vRS.contourCircle(xg,yg,circrad,wang   ,basedir+basename+'/wang_reg.pdf'      ,walevels) 
    
 def transformCplxSoln(u,N): 
     umag = np.reshape(np.abs(u),(N,N))
@@ -136,19 +119,14 @@ def getULevels(ue,ur):
     ulevels = np.linspace(umin,umax,25)
     return ulevels
     
-def plotSoln(xg,yg,u,ulevels,circrad,phi,fname):
-    plt.clf()
-    ph2=plt.contourf(xg,yg,u,ulevels,cmap=cm.RdGy)
-    plt.colorbar(ph2)
-    plt.plot(circrad*np.cos(phi),circrad*np.sin(phi),'k',linewidth=1.0)
-    plt.savefig(fname,format='pdf')
-
 def constructSolns(circrad,eps,zh,halfzpts,regfunc):
     #spatial parameters
     origin = (-0.05,-0.05) #millimeters
-    size = (100,100)
+    N = 100
+    M = 100
     h = 1.e-3
-    X = makeGridCenter(size,h,origin)
+    X = mygrids.makeGridCenter(N,M,h,origin)
+    X = np.reshape(X,(N*M,2))
     #get exact solution
     time = [0]
     freq=10 #Hz
@@ -185,10 +163,10 @@ def sims3D():
     mydict = {'X':X,'Ves':Ves,'Vrb':Vrb,'circrad':circrad,'eps':eps,'zh':zh,'halfzpts':halfzpts}
     basedir = os.path.expanduser('~/CricketProject/CompReg2Exact/')
     basename = 'negexpspheres_BCsonaxis_zhdiameter_largereps40x2pts'
-    F = open( basedir+basename+'.pickle', 'w' )
+    F = open( os.path.join(basedir,basename+'.pickle'), 'w' )
     cPickle.Pickler(F).dump(mydict)
     F.close()
-    myfile(basedir,basename)    
+    mydict = fo.loadPickle(basedir,basename)    
     graphSolns(mydict['X'],mydict['Ves'],mydict['Vrb'],mydict['circrad'],basedir,basename)
     vRS.plainPlots(zline,np.abs(Vzline[:,0]),"|u|","z","velocity",None,basedir+basename+'/zline_umag.pdf')
     vRS.plainPlots(zline,np.abs(Vzline[:,1]),"|v|","z","velocity",None,basedir+basename+'/zline_vmag.pdf')
