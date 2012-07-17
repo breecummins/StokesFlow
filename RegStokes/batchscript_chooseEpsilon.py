@@ -25,10 +25,12 @@ import batchscript_CompareRegExact as CRE
 import lib_ExactSolns as lES
 try:
     import StokesFlow.utilities.fileops as fo
+    print("not Stokesflow")
 except:
     import utilities.fileops as fo
 try:
     import StokesFlow.RegOldroydB.lib_Gridding as mygrids
+    print("not Stokesflow")
 except:
     import RegOldroydB.lib_Gridding as mygrids
 

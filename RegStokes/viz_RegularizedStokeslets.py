@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 try:
     import StokesFlow.utilities.fileops as fo
+    print("not Stokesflow")
 except:
     import utilities.fileops as fo
 import lib_RegularizedStokeslets as lRS
@@ -92,6 +93,24 @@ def plotchooseepserr_zline(mydict,basedir,basename):
     plainPlots(earr[7:],mydict['umag_axisrelerr_negex'][:,7:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','Relative L2 error',leg,basedir+basename+ '/umag_axisrelerr_trunc2_negex.pdf')
     plainPlots(earr[7:],mydict['umag_axisrelerr_gauss'][:,7:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','Relative L2 error',leg,basedir+basename+'/umag_axisrelerr_trunc2_gauss.pdf')
 
+def plotchooseepserr_Linf_farfield(mydict,basedir,basename):
+    earr = np.asarray(mydict['epslist'])
+    freqlist = mydict['freqlist']
+    leg = [str(f) for f in freqlist]
+    plainPlots(earr,mydict['umag_Linf_err_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','$L_/infty$ error',leg,basedir+basename+'/umag_Linf_err_negex.pdf')
+    plainPlots(earr,mydict['umag_Linf_err_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','$L_/infty$ error',leg,basedir+basename+'/umag_Linf_err_gauss.pdf')
+    plainPlots(earr,mydict['umag_Linf_relerr_negex'][:,:,0].transpose(),'Magnitude u, neg exp','$\epsilon$','Relative $L_/infty$ error',leg,basedir+basename+'/umag_Linf_relerr_negex.pdf')
+    plainPlots(earr,mydict['umag_Linf_relerr_gauss'][:,:,0].transpose(),'Magnitude u, gaussian','$\epsilon$','Relative $L_/infty$ error',leg,basedir+basename+'/umag_Linf_relerr_gauss.pdf')
+
+def plotchooseepserr_Linf_zline(mydict,basedir,basename):
+    earr = np.asarray(mydict['epslist'])
+    freqlist = mydict['freqlist']
+    leg = [str(f) for f in freqlist]
+    plainPlots(earr[7:],mydict['umag_Linf_axiserr_negex'][:,7:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','$L_/infty$ error',leg,basedir+basename+ '/umag_Linf_axiserr_trunc2_negex.pdf')
+    plainPlots(earr[7:],mydict['umag_Linf_axiserr_gauss'][:,7:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','$L_/infty$ error',leg,basedir+basename+'/umag_Linf_axiserr_trunc2_gauss.pdf')
+    plainPlots(earr[7:],mydict['umag_Linf_axisrelerr_negex'][:,7:,0].transpose(),'Difference in u from median on z-axis, neg exp','$\epsilon$','Relative $L_/infty$ error',leg,basedir+basename+ '/umag_Linf_axisrelerr_trunc2_negex.pdf')
+    plainPlots(earr[7:],mydict['umag_Linf_axisrelerr_gauss'][:,7:,0].transpose(),'Difference in u from median on z-axis, gaussian','$\epsilon$','Relative $L_/infty$ error',leg,basedir+basename+'/umag_Linf_axisrelerr_trunc2_gauss.pdf')
+
 def plotzline(mydict,basedir,basename,eind,find):    
     eps = mydict['epslist'][eind]
     freq = mydict['freqlist'][find]
@@ -111,35 +130,45 @@ def plotblobs(basedir,basename,epslist):
     plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob%05d.pdf' % int(np.round(epslist[0]*100000)))
 
 if __name__ == '__main__':
-    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]
-    eind = 10
-    eps = epslist[eind]
-    freqlist = [5,10,15,20,25] 
-    freqlist.extend(range(35,310,25))
-    find = int(len(freqlist)/2)
-    freq = freqlist[find]
-    print('freq',freq,'eps',eps)
+#    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]
+#    eind = 10
+#    eps = epslist[eind]
+#    freqlist = [5,10,15,20,25] 
+#    freqlist.extend(range(35,310,25))
+#    find = int(len(freqlist)/2)
+#    freq = freqlist[find]
+#    print('freq',freq,'eps',eps)
     basedir = os.path.expanduser('/Volumes/PATRIOT32G/CricketProject/ChooseEpsilon/')
     basename = 'zradius_farfield_BConaxis_hairrad05'
     print('loading file...')
     mydict = fo.loadPickle(basename,basedir)
 #    print('z radius, zline...')
 #    plotzline(mydict,basedir,basename,eind,find)
-#    print('z radius, far field error...')
+#    plotblobs(basedir,basename,[eps])
+#    print('z radius, L2 far field error...')
 #    plotchooseepserr_farfield(mydict,basedir,basename)
-    print('z radius, axis error...')
-    plotchooseepserr_zline(mydict,basedir,basename)
+#    print('z radius, L2 axis error...')
+#    plotchooseepserr_zline(mydict,basedir,basename)
+    print('z radius, Linf far field error...')
+    plotchooseepserr_Linf_farfield(mydict,basedir,basename)
+    print('z radius, Linf axis error...')
+    plotchooseepserr_Linf_zline(mydict,basedir,basename)
 
     basename = 'zhalfradius_farfield_BConaxis_hairrad05'
     print('loading file...')
     mydict = fo.loadPickle(basename,basedir)
 #    print('z half radius, zline...')
 #    plotzline(mydict,basedir,basename,eind,find)
-#    print('z half radius, far field error...')
+#    plotblobs(basedir,basename,[eps])
+#    print('z half radius, L2 far field error...')
 #    plotchooseepserr_farfield(mydict,basedir,basename)
-    print('z half radius, axis error...')
-    plotchooseepserr_zline(mydict,basedir,basename)
-    plotblobs(basedir,basename,[eps])
+#    print('z half radius, L2 axis error...')
+#    plotchooseepserr_zline(mydict,basedir,basename)
+    print('z half radius, Linf far field error...')
+    plotchooseepserr_Linf_farfield(mydict,basedir,basename)
+    print('z half radius, Linf axis error...')
+    plotchooseepserr_Linf_zline(mydict,basedir,basename)
+
 #    plotblobs(basedir,basename,epslist)
 #    plotblobs(basedir,basename,[0.0015])
 #    plotblobs(basedir,basename,[0.004])
