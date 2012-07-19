@@ -89,8 +89,38 @@ def sphere3D(x,y,z,a,mu=1.0):
     
     x,y,z are ndarrays of identical size. 
     The outputs u,v,w,p are the same size as x,y,z.
+    xdrag, ydrag, and zdrag represent the drag on the
+    sphere in the coordinate directions.
     '''
-    pass
+    H1a, H2a = Stokeslets3D(a)
+    D1a, D2a = StokesletDipoles3D(a)
+    f1 = mu*D2a/(H1a*D2a - H2a*D1a)
+    g1 = -f1*H2a/D2a
+    r = np.sqrt(x**2 + y**2 + z**2)
+    H1, H2 = Stokeslets3D(r)
+    D1, D2 = StokesletDipoles3D(r)
+    fdotx = f1*x + 0*y + 0*z
+    gdotx = g1*x + 0*y + 0*z
+    HD1 = f1*H1 + g1*D1
+    HD2 = fdotx*H2 + gdotx*D2
+    u = (HD1 + x*HD2)/mu
+    v = (0   + y*HD2)/mu
+    w = (0   + z*HD2)/mu
+    p = fdotx/(4*np.pi*r**3)
+    xdrag = -6*np.pi*mu*a 
+    ydrag = 0
+    zdrag = 0
+    return u,v,w,p,xdrag,ydrag,zdrag
+
+def Stokeslets3D(r):    
+    H1 = 1.0 / (8*np.pi*r)
+    H2 = 1.0 / (8*np.pi*r**3)
+    return H1, H2
+
+def StokesletDipoles3D(r):    
+    D1 = 1.0 / (4*np.pi*r**3)
+    D2 = -3.0 / (4*np.pi*r**5)
+    return D1, D2
 
 def sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,t=0):
     '''
@@ -119,8 +149,8 @@ def sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,t=0):
     D1, D2 = BrinkmanletDipoles3D(r,alph)
     fdotx = f1*x + 0*y + 0*z
     gdotx = g1*x + 0*y + 0*z
-    HD1 = f1*H1(r,alph) + g1*D1(r,alph)
-    HD2 = fdotx*H2(r,alph) + gdotx*D2(r,alph)
+    HD1 = f1*H1 + g1*D1
+    HD2 = fdotx*H2 + gdotx*D2
     u = ((HD1 + x*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
     v = ((0   + y*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
     w = ((0   + z*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
