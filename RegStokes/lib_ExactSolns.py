@@ -80,12 +80,13 @@ def circularCylinder2DOscillating(x,y,a,nu,mu,freq,vh,vinf,t=[0]):
         p[:,k] = np.exp(1j*om*t[k]) * sp
     return u,v,p
 
-def sphere3D(x,y,z,a,mu=1.0):
+def sphere3D(x,y,z,a,mu=1.0,c=(0,0,0),U=np.array([1.0,0.0,0.0])):
     '''
     Exact solution for the velocity field and pressure
-    at (x,y,z) caused by a sphere of radius 
-    'a' moving with a speed of 1.0 in the x 
-    direction through a Stokes fluid of viscosity 'mu'. 
+    at points (x,y,z) caused by a sphere of radius 
+    'a' with center at c = (c1,c2,c3) moving with a 
+    velocity of U = np.array([u1,u2,u3]) through a Stokes fluid of 
+    viscosity 'mu'. 
     
     x,y,z are ndarrays of identical size. 
     The outputs u,v,w,p are the same size as x,y,z.
@@ -94,22 +95,29 @@ def sphere3D(x,y,z,a,mu=1.0):
     '''
     H1a, H2a = Stokeslets3D(a)
     D1a, D2a = StokesletDipoles3D(a)
-    f1 = mu*D2a/(H1a*D2a - H2a*D1a)
-    g1 = -f1*H2a/D2a
-    r = np.sqrt(x**2 + y**2 + z**2)
+    f = U*mu*D2a/(H1a*D2a - H2a*D1a)
+    g = -f*H2a/D2a
+    dx = x-c[0]
+    dy = y-c[1]
+    dz = z-c[2]
+    r = np.sqrt(dx**2 + dy**2 + dz**2)
     H1, H2 = Stokeslets3D(r)
     D1, D2 = StokesletDipoles3D(r)
-    fdotx = f1*x + 0*y + 0*z
-    gdotx = g1*x + 0*y + 0*z
-    HD1 = f1*H1 + g1*D1
+    fdotx = f[0]*dx + f[1]*dy + f[2]*dz
+    gdotx = g[0]*dx + g[1]*dy + g[2]*dz
     HD2 = fdotx*H2 + gdotx*D2
-    u = (HD1 + x*HD2)/mu
-    v = (0   + y*HD2)/mu
-    w = (0   + z*HD2)/mu
+    u = (f[0]*H1 + g[0]*D1 + x*HD2)/mu
+    v = (f[1]*H1 + g[1]*D1 + y*HD2)/mu
+    w = (f[2]*H1 + g[2]*D1 + z*HD2)/mu
     p = fdotx/(4*np.pi*r**3)
-    xdrag = -6*np.pi*mu*a 
-    ydrag = 0
-    zdrag = 0
+    if np.all(U == np.array([1.0,0.0,0.0])):
+        xdrag = -6*np.pi*mu*a 
+        ydrag = 0
+        zdrag = 0
+    else:
+        xdrag = 'not calculated'
+        ydrag = 'not calculated'
+        zdrag = 'not calculated'
     return u,v,w,p,xdrag,ydrag,zdrag
 
 def Stokeslets3D(r):    
@@ -122,13 +130,52 @@ def StokesletDipoles3D(r):
     D2 = -3.0 / (4*np.pi*r**5)
     return D1, D2
 
-def sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,t=0):
+def test_sphere3D():
+    a = 0.25
+    nu = 1.1
+    mu=1.0
+    phi = np.linspace(0,2*np.pi,100)
+    x1 = a*np.cos(phi)
+    y1 = a*np.sin(phi)
+    z1 = np.zeros(x1.shape)
+    x2 = np.zeros(x1.shape)
+    y2 = a*np.cos(phi)
+    z2 = a*np.sin(phi)
+    x = np.column_stack([x1,x2])
+    y = np.column_stack([y1,y2])
+    z = np.column_stack([z1,z2])
+    u,v,w,p,xd,yd,zd = sphere3D(x,y,z,a,mu)
+    erru = np.max(np.abs(np.real(u)-1) )
+    errv = np.max(np.abs(np.real(v))   )
+    errw = np.max(np.abs(np.real(w))   )
+    print("The following should all be zero:")
+    print(erru,errv,errw)
+    c = (0.0,0.0,0.0)
+    U=np.array([1.0,2.0,3.0])
+    u,v,w,p,xd,yd,zd = sphere3D(x,y,z,a,mu,c,U)
+    erru = np.max(np.abs(np.real(u)-1.0) )
+    errv = np.max(np.abs(np.real(v)-2.0) )
+    errw = np.max(np.abs(np.real(w)-3.0) )
+    print("The following should all be zero:")
+    print(erru,errv,errw)
+    c = (-1.0,-0.5,1.5)
+    x = x+c[0]
+    y = y+c[1]
+    z = z+c[2]
+    u,v,w,p,xd,yd,zd = sphere3D(x,y,z,a,mu,c,U)
+    erru = np.max(np.abs(np.real(u)-1.0) )
+    errv = np.max(np.abs(np.real(v)-2.0) )
+    errw = np.max(np.abs(np.real(w)-3.0) )
+    print("The following should all be zero:")
+    print(erru,errv,errw)
+
+def sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,c=(0,0,0),U=np.array([1.0,0.0,0.0]),t=0):
     '''
     Exact solution for the velocity field and pressure
     at (x,y,z) and time 't' caused by a sphere 
-    of radius 'a' at the origin oscillating at a frequency of 
-    'freq' with peak magnitude of 1.0 in the x 
-    direction through a Stokes fluid with dynamic
+    of radius 'a' with center at c=(c1,c2,c3) oscillating 
+    at a frequency of 'freq' with peak velocity of 
+    U=np.array([u1,u2,u3]) through a Stokes fluid with dynamic
     viscosity 'mu'. 'alph = sqrt(i*omega/nu)' is 
     a complex number that contains the ratio of 
     angular frequency to kinematic viscosity.
@@ -142,22 +189,29 @@ def sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,t=0):
     '''
     H1a, H2a = Brinkmanlets3D(a,alph)
     D1a, D2a = BrinkmanletDipoles3D(a,alph)
-    f1 = mu*D2a/(H1a*D2a - H2a*D1a)
-    g1 = -f1*H2a/D2a
-    r = np.sqrt(x**2 + y**2 + z**2)
+    f = U*mu*D2a/(H1a*D2a - H2a*D1a)
+    g = -f*H2a/D2a
+    dx = x-c[0]
+    dy = y-c[1]
+    dz = z-c[2]
+    r = np.sqrt(dx**2 + dy**2 + dz**2)
     H1, H2 = Brinkmanlets3D(r,alph)
     D1, D2 = BrinkmanletDipoles3D(r,alph)
-    fdotx = f1*x + 0*y + 0*z
-    gdotx = g1*x + 0*y + 0*z
-    HD1 = f1*H1 + g1*D1
+    fdotx = f[0]*dx + f[1]*dy + f[2]*dz
+    gdotx = g[0]*dx + g[1]*dy + g[2]*dz
     HD2 = fdotx*H2 + gdotx*D2
-    u = ((HD1 + x*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
-    v = ((0   + y*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
-    w = ((0   + z*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
+    u = ((f[0]*H1 + g[0]*D1 + x*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
+    v = ((f[1]*H1 + g[1]*D1 + y*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
+    w = ((f[2]*H1 + g[2]*D1 + z*HD2)/mu)*np.exp(1j*2*np.pi*freq*t)
     p = fdotx/(4*np.pi*r**3)
-    xdrag = -6*np.pi*mu*a*(1 + alph*a + (alph**2*a**2)/9)*np.exp(1j*2*np.pi*freq*t) 
-    ydrag = 0
-    zdrag = 0
+    if np.all(U == np.array([1.0,0.0,0.0])):
+        xdrag = -6*np.pi*mu*a*(1 + alph*a + (alph**2*a**2)/9)*np.exp(1j*2*np.pi*freq*t) 
+        ydrag = 0
+        zdrag = 0
+    else:
+        xdrag = 'not calculated'
+        ydrag = 'not calculated'
+        zdrag = 'not calculated'
     return u,v,w,p,xdrag,ydrag,zdrag
 
 def sphere3DOscillatingSurfaceTraction(x,y,z,a,alph,freq,mu=1.0,t=0):
@@ -196,6 +250,7 @@ def sphere3DOscillatingSurfaceTraction(x,y,z,a,alph,freq,mu=1.0,t=0):
 def test_sphere3DOscillating():
     a = 0.25
     nu = 1.1
+    mu = 1.0
     freq=71
     alph = np.sqrt(1j*freq/nu)
     phi = np.linspace(0,2*np.pi,100)
@@ -208,12 +263,31 @@ def test_sphere3DOscillating():
     x = np.column_stack([x1,x2])
     y = np.column_stack([y1,y2])
     z = np.column_stack([z1,z2])
-    u,v,w = sphere3DOscillating(x,y,z,a,alph,freq,mu=1.0,t=0)
+    u,v,w,p,xd,yd,zd = sphere3DOscillating(x,y,z,a,alph,freq,mu)
     erru = np.max(np.abs(np.real(u)-1) )
     errv = np.max(np.abs(np.real(v))   )
     errw = np.max(np.abs(np.real(w))   )
     print("The following should all be zero:")
     print(erru,errv,errw)
+    c = (0.0,0.0,0.0)
+    U=np.array([1.0,2.0,3.0])
+    u,v,w,p,xd,yd,zd = sphere3DOscillating(x,y,z,a,alph,freq,mu,c,U)
+    erru = np.max(np.abs(np.real(u)-1.0) )
+    errv = np.max(np.abs(np.real(v)-2.0) )
+    errw = np.max(np.abs(np.real(w)-3.0) )
+    print("The following should all be zero:")
+    print(erru,errv,errw)
+    c = (-1.0,-0.5,1.5)
+    x = x+c[0]
+    y = y+c[1]
+    z = z+c[2]
+    u,v,w,p,xd,yd,zd = sphere3DOscillating(x,y,z,a,alph,freq,mu,c,U)
+    erru = np.max(np.abs(np.real(u)-1.0) )
+    errv = np.max(np.abs(np.real(v)-2.0) )
+    errw = np.max(np.abs(np.real(w)-3.0) )
+    print("The following should all be zero:")
+    print(erru,errv,errw)
+
     
 def Brinkmanlets3D(r,alph):    
     H1 = (np.exp(-r*alph)*(1+r*alph+r**2*alph**2) - 1) / (4*np.pi*r**3*alph**2)
@@ -254,32 +328,6 @@ def BrinkmanletsExact(obspts,nodes,f,alph,mu=1.0):
     return vel
 
     
-def sphere3D(U,c,x,y,z,a,mu=1.0):
-    '''
-    Exact solution for the velocity field and pressure
-    at (x,y,z) caused by a sphere of radius 
-    'a' located at c = (c1,c2,c3) moving with a speed 
-    of U in the x direction through a Stokes fluid of 
-    viscosity 'mu'. 
-    
-    x,y,z are ndarrays of identical size. 
-    The outputs u,v,w are the same size as x,y,z.
-    '''
-    H1a, H2a = Stokeslets3D(a)
-    D1a, D2a = StokesletDipoles3D(a)
-    f1 = U*mu*D2a/(H1a*D2a - H2a*D1a)
-    g1 = -f1*H2a/D2a
-    r = np.sqrt((x-c[0])**2 + (y-c[1])**2 + (z-c[2])**2)
-    H1, H2 = Stokeslets3D(r)
-    D1, D2 = StokesletDipoles3D(r)
-    fdotx = f1*(x-c[0]) + 0*(y-c[1]) + 0*(z-c[2])
-    gdotx = g1*(x-c[0]) + 0*(y-c[1]) + 0*(z-c[2])
-    HD1 = f1*H1 + g1*D1
-    HD2 = fdotx*H2 + gdotx*D2
-    u = (HD1 + x*HD2)/mu
-    v = (0   + y*HD2)/mu
-    w = (0   + z*HD2)/mu
-    return u,v,w
    
     
     

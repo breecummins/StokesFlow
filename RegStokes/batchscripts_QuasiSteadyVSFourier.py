@@ -20,64 +20,96 @@ from scipy.integrate import ode
 import os
 from cPickle import Pickler
 import lib_ExactSolns as lES
-try:
-    import StokesFlow.utilities.fileops as fo
-    print("not Stokesflow")
-except:
-    import utilities.fileops as fo
-try:
-    import StokesFlow.RegOldroydB.lib_Gridding as mygrids
-    print("not Stokesflow")
-except:
-    import RegOldroydB.lib_Gridding as mygrids
 
-def checkXLine(freqlist=[10*k for k in range(1,31)]):
+def checkXLine(basedir,basename,freqlist=[10*k for k in range(1,31)]):
     a = 1.0
     mu = 1.0
     rho = 1.0
-    U = 1.0
-    x = np.linspace(1.0,10.0,100)
+    U = np.array([1.0,0.0,0.0])
+    c = np.array([0.0,0.0,0.0])
+    x = np.linspace(a,a*10.0,100) 
     y = np.zeros(x.shape)
-    z = np.zeroes(x.shape)
-    u_fourier = []
-    v_fourier = []
-    w_fourier = []
-    u_quasi = []
-    v_quasi = []
-    w_quasi = []
+    z = np.zeros(x.shape)
+    pdict = {'a':a,'mu':mu,'borderinit':np.array([x[0],y[0],z[0]]),'centerinit':c}
+    mydict = {'u_fourier':[],'v_fourier':[],'w_fourier':[],'u_quasi':[],'v_quasi':[],'w_quasi':[],'freqlist':freqlist,'x':x,'y':y,'z':z,'pdict':pdict}
     for freq in freqlist:
-        alph = np.sqrt(1j*2*pi*freq / (mu/rho))
+        alph = np.sqrt(1j*2*np.pi*freq / (mu/rho))
         T = 10.0/(2*np.pi*freq)
         dt = 1.0/(2*np.pi*freq) / 40.0
         tvec = np.arange(0,T+dt,dt)
-        uf,vf,wf = calcFourier(x,y,z,a,alph,freq,mu,tvec)
-        u_fourier.append(uf)
-        v_fourier.append(vf)
-        w_fourier.append(wf)
+        uf,vf,wf = calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec)
+        mydict['u_fourier'].append(uf)
+        mydict['v_fourier'].append(vf)
+        mydict['w_fourier'].append(wf)
+        pdict['U'] = lambda t: np.array([U[0]*np.cos(2*np.pi*freq*t),0.0,0.0])
+        uq,vq,wq = calcQuasiSteady(x,y,z,pdict,tvec[0],dt,T)
+        mydict['u_quasi'].append(uq)
+        mydict['v_quasi'].append(vq)
+        mydict['w_quasi'].append(wq)
+    pdict['U'] = 'lambda t: np.array([U[0]*np.cos(2*np.pi*freq*t),0.0,0.0])'
+    fname = os.path.join(basedir,basename)
+    F = open( fname+'.pickle', 'w' )
+    Pickler(F).dump(mydict)
+    F.close()
 
-def calcFourier(x,y,z,a,alph,freq,mu,tvec):
-    soln_u = np.zeros((len(x),len(tvec)))
-    soln_v = np.zeros((len(x),len(tvec)))
-    soln_w = np.zeros((len(x),len(tvec)))
+    
+
+def calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec):
+    soln_u = np.zeros((len(x),len(tvec)),dtype=np.complex128)
+    soln_v = np.zeros((len(x),len(tvec)),dtype=np.complex128)
+    soln_w = np.zeros((len(x),len(tvec)),dtype=np.complex128)
     for k in range(len(tvec)):
-        out = lES.sphere3DOscillating(x,y,z,a,alph,freq,mu,tvec[k])
+        out = lES.sphere3DOscillating(x,y,z,a,alph,freq,mu,c,U,tvec[k])
         soln_u[:,k] = out[0]
         soln_v[:,k] = out[1]
         soln_w[:,k] = out[2]
     return soln_u, soln_v, soln_w
 
-def quasiWrapper(t,y,pdict):
-    N = len(y)/3
-    y = np.zeros((len(y),))
-    out = lES.sphere3D(y[:N],y[N:2*N],y[2*N:],pdict['a'],pdict['mu'])
-    y[:N] = out[0]
-    y[N:2*N] = out[1]
-    y[2*N:] = out[2]
-    return y
+def quasiWrapper(t,Y,pdict):
+    N = len(Y)/3
+    x = Y[:N]
+    y = Y[N:2*N]
+    z = Y[2*N:]
+    d = np.array([x[0],y[0],z[0]]) - pdict['borderinit']
+    center = pdict['centerinit'] + d
+    U = pdict['U'](t)
+    out = lES.sphere3D(x,y,z,pdict['a'],pdict['mu'],center,U)
+    Y = np.zeros((len(Y),))
+    Y[:N] = out[0]
+    Y[N:2*N] = out[1]
+    Y[2*N:] = out[2]
+    return Y
 
-def calcQuasiSteady():
-    #initialize integrator
-    r = ode(myodefunc).set_integrator('vode',method=method,rtol=rtol,nsteps=4000).set_initial_value(y0,t0).set_f_params(wdict) 
+def calcQuasiSteady(x,y,z,pdict,t0,dt,finaltime):
+    t0 = t0 - dt/2 # will want to center-difference in time
+    N= len(x)
+    y0 = np.zeros((3*N,))
+    y0[:N] = x
+    y0[N:2*N] = y
+    y0[2*N:] = z   
+    M = np.ceil(finaltime/dt)+2 
+    soln_x = np.zeros((len(x),M))
+    soln_y = np.zeros((len(x),M))
+    soln_z = np.zeros((len(x),M))
+    soln_x[:,0] = x
+    soln_y[:,0] = y
+    soln_z[:,0] = z
+    r = ode(quasiWrapper).set_integrator('vode',method='bdf',rtol=1.e-6,nsteps=4000).set_initial_value(y0,t0).set_f_params(pdict) 
+    k=1
+    while r.successful() and r.t < finaltime + dt:  
+        r.integrate(t0+k*dt)
+        soln_x[:,k] = r.y[:N]
+        soln_y[:,k] = r.y[N:2*N]
+        soln_z[:,k] = r.y[2*N:]
+        k += 1
+    soln_u = (soln_x[:,1:] - soln_x[:,:-1]) / dt
+    soln_v = (soln_y[:,1:] - soln_y[:,:-1]) / dt
+    soln_w = (soln_z[:,1:] - soln_z[:,:-1]) / dt
+    return soln_u, soln_v, soln_w
 
-
+if __name__ == '__main__':
+    freqlist = [100]
+    basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'
+    basename = 'freq100'
+    checkXLine(basedir,basename,freqlist)
 
