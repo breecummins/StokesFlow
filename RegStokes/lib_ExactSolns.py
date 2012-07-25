@@ -254,7 +254,33 @@ def BrinkmanletsExact(obspts,nodes,f,alph,mu=1.0):
     return vel
 
     
+def sphere3D(U,c,x,y,z,a,mu=1.0):
+    '''
+    Exact solution for the velocity field and pressure
+    at (x,y,z) caused by a sphere of radius 
+    'a' located at c = (c1,c2,c3) moving with a speed 
+    of U in the x direction through a Stokes fluid of 
+    viscosity 'mu'. 
     
+    x,y,z are ndarrays of identical size. 
+    The outputs u,v,w are the same size as x,y,z.
+    '''
+    H1a, H2a = Stokeslets3D(a)
+    D1a, D2a = StokesletDipoles3D(a)
+    f1 = U*mu*D2a/(H1a*D2a - H2a*D1a)
+    g1 = -f1*H2a/D2a
+    r = np.sqrt((x-c[0])**2 + (y-c[1])**2 + (z-c[2])**2)
+    H1, H2 = Stokeslets3D(r)
+    D1, D2 = StokesletDipoles3D(r)
+    fdotx = f1*(x-c[0]) + 0*(y-c[1]) + 0*(z-c[2])
+    gdotx = g1*(x-c[0]) + 0*(y-c[1]) + 0*(z-c[2])
+    HD1 = f1*H1 + g1*D1
+    HD2 = fdotx*H2 + gdotx*D2
+    u = (HD1 + x*HD2)/mu
+    v = (0   + y*HD2)/mu
+    w = (0   + z*HD2)/mu
+    return u,v,w
+   
     
     
     
