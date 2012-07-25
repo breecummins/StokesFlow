@@ -31,18 +31,20 @@ def checkXLine(basedir,basename,freqlist=[10*k for k in range(1,31)]):
     y = np.zeros(x.shape)
     z = np.zeros(x.shape)
     pdict = {'a':a,'mu':mu,'borderinit':np.array([x[0],y[0],z[0]]),'centerinit':c}
-    mydict = {'u_fourier':[],'v_fourier':[],'w_fourier':[],'u_quasi':[],'v_quasi':[],'w_quasi':[],'freqlist':freqlist,'x':x,'y':y,'z':z,'pdict':pdict}
+    mydict = {'u_fourier':[],'v_fourier':[],'w_fourier':[],'u_quasi':[],'v_quasi':[],'w_quasi':[],'dt':[],'freqlist':freqlist,'x':x,'y':y,'z':z,'pdict':pdict}
     for freq in freqlist:
         alph = np.sqrt(1j*2*np.pi*freq / (mu/rho))
-        T = 10.0/(2*np.pi*freq)
-        dt = 1.0/(2*np.pi*freq) / 40.0
+        period = 1.0/freq
+        T = 10.0*period
+        dt = period / 40.0
+        mydict['dt'].append(dt)
         tvec = np.arange(0,T+dt,dt)
         uf,vf,wf = calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec)
         mydict['u_fourier'].append(uf)
         mydict['v_fourier'].append(vf)
         mydict['w_fourier'].append(wf)
         pdict['U'] = lambda t: np.array([U[0]*np.cos(2*np.pi*freq*t),0.0,0.0])
-        uq,vq,wq = calcQuasiSteady(x,y,z,pdict,tvec[0],dt,T)
+        uq,vq,wq = calcQuasiSteady(x,y,z,pdict,dt,tvec)
         mydict['u_quasi'].append(uq)
         mydict['v_quasi'].append(vq)
         mydict['w_quasi'].append(wq)
@@ -51,8 +53,6 @@ def checkXLine(basedir,basename,freqlist=[10*k for k in range(1,31)]):
     F = open( fname+'.pickle', 'w' )
     Pickler(F).dump(mydict)
     F.close()
-
-    
 
 def calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec):
     soln_u = np.zeros((len(x),len(tvec)),dtype=np.complex128)
@@ -80,14 +80,14 @@ def quasiWrapper(t,Y,pdict):
     Y[2*N:] = out[2]
     return Y
 
-def calcQuasiSteady(x,y,z,pdict,t0,dt,finaltime):
-    t0 = t0 - dt/2 # will want to center-difference in time
+def calcQuasiSteady(x,y,z,pdict,dt,tvec):
+    t0 = tvec[0] - dt/2 # will want to center-difference in time
     N= len(x)
     y0 = np.zeros((3*N,))
     y0[:N] = x
     y0[N:2*N] = y
     y0[2*N:] = z   
-    M = np.ceil(finaltime/dt)+2 
+    M = len(tvec) +1 
     soln_x = np.zeros((len(x),M))
     soln_y = np.zeros((len(x),M))
     soln_z = np.zeros((len(x),M))
@@ -96,7 +96,7 @@ def calcQuasiSteady(x,y,z,pdict,t0,dt,finaltime):
     soln_z[:,0] = z
     r = ode(quasiWrapper).set_integrator('vode',method='bdf',rtol=1.e-6,nsteps=4000).set_initial_value(y0,t0).set_f_params(pdict) 
     k=1
-    while r.successful() and r.t < finaltime + dt:  
+    while r.successful() and r.t < tvec[-1]:  
         r.integrate(t0+k*dt)
         soln_x[:,k] = r.y[:N]
         soln_y[:,k] = r.y[N:2*N]
