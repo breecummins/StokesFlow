@@ -36,15 +36,20 @@ def checkXLine():
     mu = 1.0
     rho = 1.0
     U = 1.0
-    x = np.linspace(1.0,10.0,250)
+    x = np.linspace(1.0,10.0,100)
     y = np.zeros(x.shape)
     z = np.zeroes(x.shape)
     for freq in [10*k for k in range(1,31)]:
+        alph = np.sqrt(1j*2*pi*freq / (mu/rho))
         T = 10.0/(2*np.pi*freq)
+        dt = 1.0/(2*np.pi*freq) / 40.0
+        tvec = np.arange(0,T+dt,dt)
         
 
-def calcFourier():
-    lES.sphere3DOscillating(x,y,z,a,alph,freq,mu,t)
+def calcFourier(x,y,z,a,alph,freq,mu,tvec):
+    soln = np.zeros((len(x),len(tvec))
+    for t in tvec:
+        out = lES.sphere3DOscillating(x,y,z,a,alph,freq,mu,t)
     
 def calcQuasiSteady():
     lES.sphere3D(x,y,z,a,mu)
