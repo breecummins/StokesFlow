@@ -50,15 +50,15 @@ def contourCircle(x,y,a,u,fname=None,ulevs=None,titlestr=None):
         plt.savefig(fname,format='pdf')
     return ulevs
 
-def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='-'):
+def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='k-'):
     if clearme:
         plt.clf()
     if len(yvals.shape) == 2 and len(xvals.shape)==1:
         for k in range(yvals.shape[1]):
             if leglabels != None:
-                plt.plot(xvals,yvals[:,k],label=leglabels[k])
+                plt.plot(xvals,yvals[:,k],stylestr,label=leglabels[k])
             else:
-                plt.plot(xvals,yvals[:,k])
+                plt.plot(xvals,yvals[:,k],stylestr)
     elif len(yvals.shape) == 2 and len(xvals.shape)==2:
         for k in range(yvals.shape[1]):
             if leglabels != None:
@@ -66,7 +66,7 @@ def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=
             else:
                 plt.plot(xvals[:,k],yvals[:,k],stylestr)
     else:
-        plt.plot(xvals,yvals) 
+        plt.plot(xvals,yvals,stylestr,label=leglabels) 
     plt.title(titlestr)
     plt.xlabel(xstr)
     plt.ylabel(ystr)
@@ -75,15 +75,15 @@ def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=
     if fname != None:
         plt.savefig(fname,format='pdf')
 
-def loglogPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='-'):
+def loglogPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='k-'):
     if clearme:
         plt.clf()
     if len(yvals.shape) == 2 and len(xvals.shape)==1:
         for k in range(yvals.shape[1]):
             if leglabels != None:
-                plt.loglog(xvals,yvals[:,k],label=leglabels[k])
+                plt.loglog(xvals,yvals[:,k],stylestr,label=leglabels[k])
             else:
-                plt.loglog(xvals,yvals[:,k])
+                plt.loglog(xvals,yvals[:,k],stylestr)
     elif len(yvals.shape) == 2 and len(xvals.shape)==2:
         for k in range(yvals.shape[1]):
             if leglabels != None:
@@ -91,7 +91,7 @@ def loglogPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme
             else:
                 plt.loglog(xvals[:,k],yvals[:,k],stylestr)
     else:
-        plt.loglog(xvals,yvals) 
+        plt.loglog(xvals,yvals,stylestr,label=leglabels) 
     plt.title(titlestr)
     plt.xlabel(xstr)
     plt.ylabel(ystr)
@@ -167,23 +167,34 @@ if __name__ == '__main__':
 #    plainPlots(tvec,np.real(mydict['u_quasi'][freqind][ptind,:]),'u quasi, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_freq%03d_point%02d.pdf' % (freq,ptind)))
 
     basedir = os.path.expanduser('~/CricketProject/QuasiSteadyVSFourier/')
+    if not os.path.exists(basedir):
+        basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'   
+        if not os.path.exists(basedir):        
+            print('Choose a different directory for saving files')
+            raise(SystemExit)
     basename = 'freq100'
     print('loading file...')
     mydict = fo.loadPickle(basename,basedir)
-    # tvec = mydict['dt']*np.arange(mydict['u_fourier'].shape[1])
-    # for ptind in [0,len(mydict['x'])/2,len(mydict['x'])-1]:
-    #     plainPlots(tvec,np.real(mydict['u_fourier'][ptind,:]),'u fourier, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind))
-    #     plainPlots(tvec,np.real(mydict['u_quasi'][ptind,:]),'u quasi, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind))
-    maxvec_fouri = np.zeros(mydict['x'].shape)
-    maxvec_quasi = np.zeros(mydict['x'].shape)
     N = mydict['u_fourier'][0].shape[1]
-    for ptind in range(len(mydict['x'])):
-        maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][0][ptind,int(N/2):]))
-        maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][0][ptind,int(N/2):]))
-    print(maxvec_quasi)
-    print(maxvec_fouri)
-    loglogPlots(mydict['x'],maxvec_fouri,'u fourier','x location','max x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'))
-    loglogPlots(mydict['x'],maxvec_quasi,'u quasi-steady','x location','max x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'))
+    tvec = mydict['dt']*np.arange(0,N)
+    for ptind in [0,len(mydict['x'])/2,len(mydict['x'])-1]:
+        plainPlots(tvec,np.real(mydict['u_fourier'][0][ptind,:]),'u fourier, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind),stylestr='k-')
+        plainPlots(tvec,np.real(mydict['u_quasi'][0][ptind,:]),'u quasi, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind),stylestr='k-')
+    #maxvec_fouri = np.zeros(mydict['x'].shape)
+    #maxvec_quasi = np.zeros(mydict['x'].shape)
+    #for ptind in range(len(mydict['x'])):
+        #maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][0][ptind,int(N/2):]))
+        #maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][0][ptind,int(N/2):]))
+    ##print(maxvec_quasi)
+    ##print(maxvec_fouri)
+    ##plot fourier results
+    #loglogPlots(mydict['x'],maxvec_fouri,'u fourier','x location','max x velocity','fourier simulation',os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),stylestr='k-')
+    ##plot slope of -3
+    #loglogPlots(mydict['x'],(mydict['x'])**(-3)*np.exp(0.5),'u fourier','x location','max x velocity','slope of -3',os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),False,'k--')
+    ##plot quasi-steady results
+    #loglogPlots(mydict['x'],maxvec_quasi,'u quasi-steady','x location','max x velocity','quasi-steady simulation',os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),stylestr='k-')
+    ##plot slope of -1
+    #loglogPlots(mydict['x'],(mydict['x'])**(-1)*np.exp(0.5),'u quasi-steady','x location','max x velocity','slope of -1',os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),False,'k--')
 
 
 ##    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]

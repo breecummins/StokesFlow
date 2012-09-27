@@ -27,7 +27,7 @@ def checkXLine(basedir,basename,freqlist=[10*k for k in range(1,31)]):
     rho = 1.0
     U = np.array([1.0,0.0,0.0])
     c = np.array([0.0,0.0,0.0])
-    x = np.linspace(a,a*10.0,100) 
+    x = np.linspace(a,a*100.0,500) 
     y = np.zeros(x.shape)
     z = np.zeros(x.shape)
     pdict = {'a':a,'mu':mu,'borderinit':np.array([x[0],y[0],z[0]]),'centerinit':c}
@@ -36,7 +36,7 @@ def checkXLine(basedir,basename,freqlist=[10*k for k in range(1,31)]):
         alph = np.sqrt(1j*2*np.pi*freq / (mu/rho))
         period = 1.0/freq
         T = 10.0*period
-        dt = period / 40.0
+        dt = period / 80.0
         mydict['dt'].append(dt)
         tvec = np.arange(0,T+dt,dt)
         uf,vf,wf = calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec)
@@ -189,12 +189,16 @@ def calcQuasiSteady_multfreqs(x,y,z,pdict,dt,tvec):
 
 
 if __name__ == '__main__':
-#    freqlist = [185]
-#    basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'
-#    basename = 'freq185'
-#    checkXLine(basedir,basename,freqlist)
-    freqlist = range(10,21)
-    basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'
-    basename = 'multfreqs_010to020'
-    checkXLine_multfreqs(basedir,basename,freqlist)
+    basedir = os.path.expanduser('~/CricketProject/QuasiSteadyVSFourier/')
+    if not os.path.exists(basedir):
+        basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'   
+        if not os.path.exists(basedir):        
+            print('Choose a different directory for saving files')
+            raise(SystemExit)
+    freqlist = [100]
+    basename = 'freq100_morespace'
+    checkXLine(basedir,basename,freqlist)
+    #freqlist = range(10,21)
+    #basename = 'multfreqs_010to020_morespace'
+    #checkXLine_multfreqs(basedir,basename,freqlist)
 
