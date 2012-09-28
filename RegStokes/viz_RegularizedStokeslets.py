@@ -18,7 +18,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+import matplotlib as mpl
 try:
     import StokesFlow.utilities.fileops as fo
     print("not Stokesflow")
@@ -41,7 +41,7 @@ def contourCircle(x,y,a,u,fname=None,ulevs=None,titlestr=None):
             umax = 1.05*umax
         ulevs = np.linspace(umin,umax,30)
     plt.clf()
-    ph2=plt.contourf(x,y,u,ulevs,cmap=cm.RdGy)
+    ph2=plt.contourf(x,y,u,ulevs,cmap=mpl.cm.RdGy)
     plt.colorbar(ph2)
     phi = 2*np.pi*np.arange(0,1.01,0.01)
     plt.plot(a*np.cos(phi),a*np.sin(phi),'k',linewidth=1.0)
@@ -72,6 +72,7 @@ def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=
     plt.ylabel(ystr)
     if leglabels != None:
         plt.legend()
+    mpl.rc('font',size=22)
     if fname != None:
         plt.savefig(fname,format='pdf')
 
@@ -97,6 +98,7 @@ def loglogPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme
     plt.ylabel(ystr)
     if leglabels != None:
         plt.legend()
+    mpl.rc('font',size=22)
     if fname != None:
         plt.savefig(fname,format='pdf')
 
