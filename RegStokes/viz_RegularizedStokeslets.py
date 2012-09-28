@@ -50,57 +50,36 @@ def contourCircle(x,y,a,u,fname=None,ulevs=None,titlestr=None):
         plt.savefig(fname,format='pdf')
     return ulevs
 
-def plainPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='k-'):
+def myPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,plottype=plt.plot,fname=None,clearme=True,stylestr='k-'):
+    #works with plt.loglog too
     if clearme:
         plt.clf()
     if len(yvals.shape) == 2 and len(xvals.shape)==1:
         for k in range(yvals.shape[1]):
             if leglabels != None:
-                plt.plot(xvals,yvals[:,k],stylestr,label=leglabels[k])
+                plottype(xvals,yvals[:,k],stylestr,linewidth=2.0,label=leglabels[k])
             else:
-                plt.plot(xvals,yvals[:,k],stylestr)
+                plottype(xvals,yvals[:,k],stylestr,linewidth=2.0)
     elif len(yvals.shape) == 2 and len(xvals.shape)==2:
         for k in range(yvals.shape[1]):
             if leglabels != None:
-                plt.plot(xvals[:,k],yvals[:,k],stylestr,label=leglabels[k])
+                plottype(xvals[:,k],yvals[:,k],stylestr,linewidth=2.0,label=leglabels[k])
             else:
-                plt.plot(xvals[:,k],yvals[:,k],stylestr)
+                plottype(xvals[:,k],yvals[:,k],stylestr,linewidth=2.0)
     else:
-        plt.plot(xvals,yvals,stylestr,label=leglabels) 
-    plt.title(titlestr)
-    plt.xlabel(xstr)
-    plt.ylabel(ystr)
+        plottype(xvals,yvals,stylestr,linewidth=2.0,label=leglabels) 
+    plt.xlim([np.min(xvals),np.max(xvals)])
+    if titlestr != None:  
+        plt.title(titlestr)
+    if xstr != None: 
+        plt.xlabel(xstr)
+    if ystr != None:
+        plt.ylabel(ystr)
     if leglabels != None:
         plt.legend()
     mpl.rc('font',size=22)
     if fname != None:
-        plt.savefig(fname,format='pdf')
-
-def loglogPlots(xvals,yvals,titlestr,xstr,ystr,leglabels=None,fname=None,clearme=True,stylestr='k-'):
-    if clearme:
-        plt.clf()
-    if len(yvals.shape) == 2 and len(xvals.shape)==1:
-        for k in range(yvals.shape[1]):
-            if leglabels != None:
-                plt.loglog(xvals,yvals[:,k],stylestr,label=leglabels[k])
-            else:
-                plt.loglog(xvals,yvals[:,k],stylestr)
-    elif len(yvals.shape) == 2 and len(xvals.shape)==2:
-        for k in range(yvals.shape[1]):
-            if leglabels != None:
-                plt.loglog(xvals[:,k],yvals[:,k],stylestr,label=leglabels[k])
-            else:
-                plt.loglog(xvals[:,k],yvals[:,k],stylestr)
-    else:
-        plt.loglog(xvals,yvals,stylestr,label=leglabels) 
-    plt.title(titlestr)
-    plt.xlabel(xstr)
-    plt.ylabel(ystr)
-    if leglabels != None:
-        plt.legend()
-    mpl.rc('font',size=22)
-    if fname != None:
-        plt.savefig(fname,format='pdf')
+        plt.savefig(fname,format='pdf', bbox_inches="tight")
 
 def plotchooseepserr_farfield(mydict,basedir,basename):
     earr = np.asarray(mydict['epslist'])
@@ -180,23 +159,23 @@ if __name__ == '__main__':
     N = mydict['u_fourier'][0].shape[1]
     tvec = mydict['dt']*np.arange(0,N)
     for ptind in [0,len(mydict['x'])/2,len(mydict['x'])-1]:
-        plainPlots(tvec,np.real(mydict['u_fourier'][0][ptind,:]),'u fourier, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind),stylestr='k-')
-        plainPlots(tvec,np.real(mydict['u_quasi'][0][ptind,:]),'u quasi, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind),stylestr='k-')
-    #maxvec_fouri = np.zeros(mydict['x'].shape)
-    #maxvec_quasi = np.zeros(mydict['x'].shape)
-    #for ptind in range(len(mydict['x'])):
-        #maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][0][ptind,int(N/2):]))
-        #maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][0][ptind,int(N/2):]))
-    ##print(maxvec_quasi)
-    ##print(maxvec_fouri)
-    ##plot fourier results
-    #loglogPlots(mydict['x'],maxvec_fouri,'u fourier','x location','max x velocity','fourier simulation',os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),stylestr='k-')
-    ##plot slope of -3
-    #loglogPlots(mydict['x'],(mydict['x'])**(-3)*np.exp(0.5),'u fourier','x location','max x velocity','slope of -3',os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),False,'k--')
-    ##plot quasi-steady results
-    #loglogPlots(mydict['x'],maxvec_quasi,'u quasi-steady','x location','max x velocity','quasi-steady simulation',os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),stylestr='k-')
-    ##plot slope of -1
-    #loglogPlots(mydict['x'],(mydict['x'])**(-1)*np.exp(0.5),'u quasi-steady','x location','max x velocity','slope of -1',os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),False,'k--')
+        myPlots(tvec,np.real(mydict['u_fourier'][0][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind),stylestr='k-')
+        myPlots(tvec,np.real(mydict['u_quasi'][0][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind),stylestr='k-')
+    maxvec_fouri = np.zeros(mydict['x'].shape)
+    maxvec_quasi = np.zeros(mydict['x'].shape)
+    for ptind in range(len(mydict['x'])):
+        maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][0][ptind,int(N/2):]))
+        maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][0][ptind,int(N/2):]))
+    #print(maxvec_quasi)
+    #print(maxvec_fouri)
+    #plot fourier results
+    myPlots(mydict['x'],maxvec_fouri,None,'initial location','max velocity','fourier simulation',plt.loglog,os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),stylestr='k-')
+    #plot slope of -3
+    myPlots(mydict['x'],(mydict['x'])**(-3)*np.exp(0.5),None,'initial location','max velocity','slope of -3',plt.loglog,os.path.join(os.path.join(basedir,basename),'u_fourier_xdecay.pdf'),False,'k--')
+    #plot quasi-steady results
+    myPlots(mydict['x'],maxvec_quasi,None,'initial location','max velocity','quasi-steady simulation',plt.loglog,os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),stylestr='k-')
+    #plot slope of -1
+    myPlots(mydict['x'],(mydict['x'])**(-1)*np.exp(0.5),None,'initial location','max velocity','slope of -1',plt.loglog,os.path.join(os.path.join(basedir,basename),'u_quasi_xdecay.pdf'),False,'k--')
 
 
 ##    epslist = [k*0.005 for k in np.arange(0.05,1.8,0.05)]
