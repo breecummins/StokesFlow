@@ -17,15 +17,18 @@
 
 import cPickle, os
 
-def loadPickle(basename,basedir,newfolder='y'):
+def loadPickle(wholepath='',basedir='',basename='',newfolder=True):
+    basedir = os.path.dirname(wholepath) or basedir
+    basename = os.path.basename(wholepath) or basename
     if not basename.endswith('.pickle'):
         basename = basename+'.pickle'
-    if newfolder == 'y':
+    wholepath = os.path.join(basedir,basename)
+    if newfolder:
         try:
-            os.mkdir(os.path.join(basedir,basename.split('.pickle')[0]))
+            os.mkdir(wholepath.rstrip('.pickle'))
         except:
             pass
-    F = open(os.path.join(basedir,basename), 'r')
+    F = open(wholepath, 'r')
     mydict = cPickle.Unpickler(F).load()
     F.close()
     return mydict

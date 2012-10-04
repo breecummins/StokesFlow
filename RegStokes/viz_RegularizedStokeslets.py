@@ -136,36 +136,25 @@ def plotblobs(basedir,basename,epslist):
     plainPlots(r,np.asarray(gauss).transpose(),'Gaussian Exponential Blob','distance (mm) from blob location','blob strength',leg,basedir+basename+'/gaussblob%05d.pdf' % int(np.round(epslist[0]*100000)))
 
 if __name__ == '__main__':
-#    basedir = os.path.expanduser('/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/')
-#    basename = 'freq185'
-#    print('loading file...')
-#    mydict = fo.loadPickle(basename,basedir)
-#    tvec = mydict['dt'][0]*np.arange(mydict['u_fourier'][0].shape[1])
-#    ptind = 0#len(mydict['x'])-1
-#    freqind = 0
-#    freq = mydict['freqlist'][freqind]
-#    plainPlots(tvec,np.real(mydict['u_fourier'][freqind][ptind,:]),'u fourier, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_fourier_freq%03d_point%02d.pdf' % (freq,ptind)))
-#    plainPlots(tvec,np.real(mydict['u_quasi'][freqind][ptind,:]),'u quasi, x loc = %0.2f' % mydict['x'][ptind],'time','x velocity',None,fname=os.path.join(os.path.join(basedir,basename),'u_quasi_freq%03d_point%02d.pdf' % (freq,ptind)))
-
     basedir = os.path.expanduser('~/CricketProject/QuasiSteadyVSFourier/')
     if not os.path.exists(basedir):
         basedir = '/Volumes/PATRIOT32G/CricketProject/QuasiSteadyVSFourier/'   
         if not os.path.exists(basedir):        
             print('Choose a different directory for saving files')
             raise(SystemExit)
-    basename = 'freq100'
+    basename = 'multfreqs_050_095'
     print('loading file...')
-    mydict = fo.loadPickle(basename,basedir)
-    N = mydict['u_fourier'][0].shape[1]
+    mydict = fo.loadPickle(basename=basename,basedir=basedir)
+    N = mydict['u_fourier'].shape[1]
     tvec = mydict['dt']*np.arange(0,N)
     for ptind in [0,len(mydict['x'])/2,len(mydict['x'])-1]:
-        myPlots(tvec,np.real(mydict['u_fourier'][0][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind),stylestr='k-')
-        myPlots(tvec,np.real(mydict['u_quasi'][0][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind),stylestr='k-')
+        myPlots(tvec,np.real(mydict['u_fourier'][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_fourier_point%02d.pdf' % ptind),stylestr='k-')
+        myPlots(tvec,np.real(mydict['u_quasi'][ptind,:]),'location = %0.2f' % mydict['x'][ptind],'time','velocity',fname=os.path.join(os.path.join(basedir,basename),'u_quasi_point%02d.pdf' % ptind),stylestr='k-')
     maxvec_fouri = np.zeros(mydict['x'].shape)
     maxvec_quasi = np.zeros(mydict['x'].shape)
     for ptind in range(len(mydict['x'])):
-        maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][0][ptind,int(N/2):]))
-        maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][0][ptind,int(N/2):]))
+        maxvec_fouri[ptind] = np.max(np.real(mydict['u_fourier'][ptind,int(N/2):]))
+        maxvec_quasi[ptind] = np.max(np.real(mydict['u_quasi'][ptind,int(N/2):]))
     #print(maxvec_quasi)
     #print(maxvec_fouri)
     #plot fourier results

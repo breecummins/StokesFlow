@@ -115,7 +115,7 @@ def optimizeEps():
 def adderrs(fname,mydict=None):
     if mydict == None:
         basedir,basename = os.path.split(fname)
-        mydict = fo.loadPickle(basename,basedir,'n')
+        mydict = fo.loadPickle(basename=basename,basedir=basedir,newfolder=False)
     d = fo.ExtractDict(mydict)
     umag_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
     uang_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
@@ -175,7 +175,7 @@ def adderrs(fname,mydict=None):
 def adderrs_Linf(fname,mydict=None):
     if mydict == None:
         basedir,basename = os.path.split(fname)
-        mydict = fo.loadPickle(basename,basedir,'n')
+        mydict = fo.loadPickle(basename=basename,basedir=basedir,newfolder=False)
     d = fo.ExtractDict(mydict)
     umag_Linf_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))
     uang_Linf_err_negex = np.zeros((len(d.freqlist),len(d.epslist),3))

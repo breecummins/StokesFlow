@@ -95,7 +95,7 @@ def knownsolutioninitialygrad(U, Wi, l, times):
 
 def simresults(basename, basedir):
     '''Retrieve approximate solution from saved output'''
-    mydict = fileops.loadPickle(basename, basedir)
+    mydict = fileops.loadPickle(basename=basename, basedir=basedir)
     l = mydict['l']
     S=mydict['S']
     F=[]

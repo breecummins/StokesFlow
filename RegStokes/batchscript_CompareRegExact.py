@@ -166,7 +166,7 @@ def sims3D():
     F = open( os.path.join(basedir,basename+'.pickle'), 'w' )
     cPickle.Pickler(F).dump(mydict)
     F.close()
-    mydict = fo.loadPickle(basedir,basename)    
+    mydict = fo.loadPickle(basedir=basedir,basename=basename)    
     graphSolns(mydict['X'],mydict['Ves'],mydict['Vrb'],mydict['circrad'],basedir,basename)
     vRS.plainPlots(zline,np.abs(Vzline[:,0]),"|u|","z","velocity",None,basedir+basename+'/zline_umag.pdf')
     vRS.plainPlots(zline,np.abs(Vzline[:,1]),"|v|","z","velocity",None,basedir+basename+'/zline_vmag.pdf')
