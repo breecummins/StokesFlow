@@ -46,7 +46,7 @@ def contourCircle(x,y,a,u,fname=None,ulevs=None,titlestr=None):
     phi = 2*np.pi*np.arange(0,1.01,0.01)
     plt.plot(a*np.cos(phi),a*np.sin(phi),'k',linewidth=1.0)
     plt.title(titlestr)
-    if fname != None:
+    if fname:
         plt.savefig(fname,format='pdf')
     return ulevs
 
