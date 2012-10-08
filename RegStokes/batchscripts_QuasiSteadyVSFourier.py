@@ -33,7 +33,10 @@ def calcFourier(x,y,z,a,alph,freq,mu,c,U,tvec):
     return soln_u, soln_v, soln_w
 
 def checkXLine_multfreqs(basedir,basename,freqlist=[10*k for k in range(1,31)]):
-    '''Calculates motion for all the frequencies in freqlist simultaneously. Also handles lists of one element - single frequencies.'''
+    '''
+    Calculates motion along the x-axis caused by a sphere centered at the origin oscillating as the sum of sinusoids of all the frequencies in freqlist simultaneously. Also handles lists of one element - single frequencies.
+    Uses Stokeslet+dipole soln, Fourier and quasi-steady methods. 
+    '''
     a = 1.0
     mu = 1.0
     rho = 1.0
@@ -114,6 +117,45 @@ def calcQuasiSteady_multfreqs(x,y,z,pdict,dt,tvec):
 
 
 
+def checkSurface_multfreqs(basedir,basename,freqlist=[10*k for k in range(1,31)]):
+    '''
+    Calculates motion along the x-axis caused by a sphere centered at the origin oscillating as the sum of sinusoids of all the frequencies in freqlist simultaneously. Also handles lists of one element - single frequencies.
+    Uses Stokeslets over surface, Fourier and quasi-steady methods.
+    '''
+    a = 1.0
+    mu = 1.0
+    rho = 1.0
+    U = np.array([1.0/len(freqlist),0.0,0.0])
+    x = np.linspace(a,a*10.0,100) 
+    y = np.zeros(x.shape)
+    z = np.zeros(x.shape)
+    xline = np.column_stack([x,y,z])
+    sphere_array = a*np.loadtxt('voronoivertices0600.dat')
+    pdict = {'a':a,'mu':mu,'borderinit':sphere_array,'freqlist':freqlist,'U':U}
+    period = 1.0/min(freqlist)
+    T = 10.0*period
+    dt = period / 40.0
+    tvec = np.arange(0,T+dt,dt)
+    mydict = {'u_fourier':0.0,'v_fourier':0.0,'w_fourier':0.0,'u_quasi':0.0,'v_quasi':0.0,'w_quasi':0.0,'dt':dt,'freqlist':freqlist,'x':x,'y':y,'z':z,'pdict':pdict}
+    for freq in freqlist:
+        alph = np.sqrt(1j*2*np.pi*freq / (mu/rho))
+        uf,vf,wf = calcFourier_surface(xline,pdict['borderinit'],a,alph,freq,mu,U,tvec)
+        mydict['u_fourier']+=uf
+        mydict['v_fourier']+=vf
+        mydict['w_fourier']+=wf
+
+def calcFourier_surface(obspts,nodes,a,alph,freq,mu,U,tvec):
+    soln_u = np.zeros((len(x),len(tvec)),dtype=np.complex128)
+    soln_v = np.zeros((len(x),len(tvec)),dtype=np.complex128)
+    soln_w = np.zeros((len(x),len(tvec)),dtype=np.complex128)
+    for k in range(len(tvec)):
+        f = FourierSurfaceTraction()
+        out = lES.BrinkmanletsExact(obspts,nodes,f,alph)
+        soln_u[:,k] = out[0]
+        soln_v[:,k] = out[1]
+        soln_w[:,k] = out[2]
+    return soln_u, soln_v, soln_w
+    
 if __name__ == '__main__':
     basedir = os.path.expanduser('~/CricketProject/QuasiSteadyVSFourier/')
     if not os.path.exists(basedir):
